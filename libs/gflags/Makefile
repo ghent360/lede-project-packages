@@ -37,15 +37,14 @@ define Package/gflags/description
 endef
 
 define Package/gflags/install	
-	$(INSTALL_DIR) $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/.libs/*.so* $(1)/usr/lib/
+	:
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/gflags
-	$(CP) $(PKG_BUILD_DIR)/libAACdec/include/aacdecoder_lib.h $(1)/usr/include/gflags
+	$(CP) $(PKG_BUILD_DIR)/include/gflags/* $(1)/usr/include/gflags
 	$(INSTALL_DIR) $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/.libs/*.{la,so*} $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/lib/libgflags.a $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,gflags))
