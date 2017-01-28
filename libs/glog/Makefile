@@ -27,7 +27,7 @@ include $(INCLUDE_DIR)/cmake.mk
 define Package/glog
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libpthread +glfags
+  DEPENDS:=+libpthread +gflags
   TITLE:=Google glog library
   URL:=https://github.com/google/glog
 endef
