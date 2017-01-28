@@ -24,6 +24,10 @@ PKG_MIRROR_MD5SUM:=
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
+CMAKE_OPTIONS += \
+    -DBUILD_SHARED_LIBS:BOOL=OFF \
+    -DBUILD_STATIC_LIBS:BOOL=ON \
+
 define Package/gflags
   SECTION:=libs
   CATEGORY:=Libraries
@@ -45,6 +49,9 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/include/gflags/* $(1)/usr/include/gflags
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(CP) $(PKG_BUILD_DIR)/lib/libgflags.a $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/lib/libgflags_nothreads.a $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib/cmake/gflags
+	$(CP) $(PKG_BUILD_DIR)/gflags*.cmake $(1)/usr/lib/cmake/gflags/
 endef
 
 $(eval $(call BuildPackage,gflags))
