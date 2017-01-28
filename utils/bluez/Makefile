@@ -8,17 +8,21 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bluez
-PKG_VERSION:=5.38
+PKG_VERSION:=5.44.1v
 PKG_RELEASE:=1
 
+PKG_SOURCE_PROTO:=git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=@KERNEL/linux/bluetooth/
-PKG_MD5SUM:=dae2ed00c63791800ea7d10a381270a5
+PKG_SOURCE_URL:=https://github.com/ghent360/bluez
+PKG_SOURCE_SUBDIR=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_VERSION:=9501acfa8e5c7be1776a575658842f63dacc65f0
+PKG_MD5SUM:=
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Nicolas Thill <nico@openwrt.org>
 
+PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
@@ -63,7 +67,7 @@ $(call Package/bluez/Default)
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE+= daemon
-  DEPENDS:=+bluez-libs +bluez-utils +dbus +libical $(INTL_DEPENDS) $(ICONV_DEPENDS)
+  DEPENDS:=+bluez-libs +dbus +libical +libpthread +librt +glib2 +libncurses +libreadline  $(INTL_DEPENDS) $(ICONV_DEPENDS) 
 endef
 
 define Package/bluez-daemon/conffiles
