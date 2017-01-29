@@ -54,4 +54,13 @@ define Package/espeak/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/espeak $(1)/usr/share/
 endef
 
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/include/espeak
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/espeak/* $(1)/usr/include/espeak
+	$(INSTALL_DIR) $(1)/usr/lib/
+	$(CP) \
+		$(PKG_INSTALL_DIR)/usr/lib/*.{so*,a} \
+		$(1)/usr/lib/
+endef
+
 $(eval $(call BuildPackage,espeak))

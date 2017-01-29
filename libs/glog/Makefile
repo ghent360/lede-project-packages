@@ -24,10 +24,14 @@ PKG_MIRROR_MD5SUM:=0d55b9b65e31b75de99c61a9ba160f628968806b833ee6e91eaebb8557fb7
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
+CMAKE_OPTIONS += \
+    -DBUILD_SHARED_LIBS:BOOL=ON \
+    -DBUILD_STATIC_LIBS:BOOL=OFF\
+
 define Package/glog
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libpthread +gflags
+  DEPENDS:=+libpthread +gflags +libstdcpp
   TITLE:=Google glog library
   URL:=https://github.com/google/glog
 endef
@@ -37,7 +41,8 @@ define Package/glog/description
 endef
 
 define Package/glog/install	
-	:
+	$(INSTALL_DIR) $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/libglog.so.* $(1)/usr/lib/
 endef
 
 define Build/InstallDev
@@ -45,7 +50,7 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/glog/*.h $(1)/usr/include/glog
 	$(CP) $(PKG_BUILD_DIR)/src/glog/*.h $(1)/usr/include/glog
 	$(INSTALL_DIR) $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/libglog.a $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/libglog.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,glog))

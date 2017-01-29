@@ -25,13 +25,13 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
 CMAKE_OPTIONS += \
-    -DBUILD_SHARED_LIBS:BOOL=OFF \
-    -DBUILD_STATIC_LIBS:BOOL=ON \
+    -DBUILD_SHARED_LIBS:BOOL=ON \
+    -DBUILD_STATIC_LIBS:BOOL=OFF\
 
 define Package/gflags
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=@BUILD_PATENTED
+  DEPENDS:=+libstdcpp
   TITLE:=Google gflags library
   URL:=https://github.com/gflags/gflags
 endef
@@ -41,15 +41,16 @@ define Package/gflags/description
 endef
 
 define Package/gflags/install	
-	:
+	$(INSTALL_DIR) $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/lib/libgflags.so* $(1)/usr/lib/
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/gflags
 	$(CP) $(PKG_BUILD_DIR)/include/gflags/* $(1)/usr/include/gflags
 	$(INSTALL_DIR) $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/lib/libgflags.a $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/lib/libgflags_nothreads.a $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/lib/libgflags.so* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/lib/libgflags_nothreads.so* $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/lib/cmake/gflags
 	$(CP) $(PKG_BUILD_DIR)/gflags*.cmake $(1)/usr/lib/cmake/gflags/
 endef
