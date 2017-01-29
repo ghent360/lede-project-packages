@@ -7,19 +7,19 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=dbuswrapper
-PKG_VERSION=0.1.3
+PKG_NAME:=bluez5wrapper
+PKG_VERSION=0.1.2
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Venelin Efremov <vefremov@iqury.us>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL=git@bitbucket.org:ghent360/dbuswrapper.git
+PKG_SOURCE_URL=git@bitbucket.org:ghent360/blues5wrapper.git
 PKG_SOURCE_SUBDIR=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=553d6db695d099fd41e99ec816e9aa9e8564368e
+PKG_SOURCE_VERSION:=de8945acbb7f70d7c076c67acad8058d266c3e44
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_MIRROR_MD5SUM:=b0e1fda21c7dd0df58f1929e7216188c135d30b93179b3b3d007a93bfb0ca1fd
+PKG_MIRROR_MD5SUM:=2416b7c49b37838eefa265f766af6f84dec82fa7cfbdbe25868834d1717b4054
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -27,19 +27,19 @@ PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
-define Package/dbuswrapper
+define Package/bluez5wrapper
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libstdcpp +libpthread +gflags +glog +dbus
-  TITLE:=C++ wrapper library for DBUS.
-  URL:=https://bitbucket.org/ghent360/dbuswrapper
+  DEPENDS:=+libstdcpp +libpthread +gflags +glog +dbus +dbuswrapper
+  TITLE:=C++ wrapper library for Bluez 5.
+  URL:=https://bitbucket.org/ghent360/blues5wrapper
 endef
 
-define Package/dbuswrapper/description
-  C++ wrapper library for DBUS
+define Package/bluez5wrapper/description
+  C++ wrapper library for Bluez 5
 endef
 
-define Package/dbuswrapper/install
+define Package/bluez5wrapper/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/*.so* \
@@ -54,8 +54,8 @@ define Build/Configure
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include/dbus-wrapper
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/dbus-wrapper/*.h $(1)/usr/include/dbus-wrapper/
+	$(INSTALL_DIR) $(1)/usr/include/bluez5-cxx
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/bluez5-cxx/* $(1)/usr/include/bluez5-cxx
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/*.{so*,a,la} \
@@ -66,4 +66,4 @@ define Build/InstallDev
 		$(1)/usr/lib/pkgconfig
 endef
 
-$(eval $(call BuildPackage,dbuswrapper))
+$(eval $(call BuildPackage,bluez5wrapper))
