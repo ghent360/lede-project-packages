@@ -42,7 +42,8 @@ endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/glog
-	$(CP) $(PKG_BUILD_DIR)/glog/* $(1)/usr/include/glog
+	$(CP) $(PKG_BUILD_DIR)/glog/*.h $(1)/usr/include/glog
+	$(CP) $(PKG_BUILD_DIR)/src/glog/*.h $(1)/usr/include/glog
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(CP) $(PKG_BUILD_DIR)/libglog.a $(1)/usr/lib/
 endef
