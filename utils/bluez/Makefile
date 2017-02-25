@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bluez
-PKG_VERSION:=5.44.2v
+PKG_VERSION:=5.44.3v
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
