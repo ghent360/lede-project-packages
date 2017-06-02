@@ -12,6 +12,7 @@ PKG_MAINTAINER:=Mislav Novakovic <mislav.novakovic@sartura.hr>
 
 PKG_NAME:=sysrepo
 PKG_VERSION:=0.6.0
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=e4a5705a4c5293ba121048c71899b98243d99edf
@@ -78,7 +79,7 @@ CMAKE_OPTIONS += \
 
 define Package/libsysrepo/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/libsysrepo.so* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/src/libsysrepo.so* $(1)/usr/lib/
 
 	$(INSTALL_DIR) $(1)/etc/sysrepo/yang/internal
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/yang/sysrepo-module-dependencies.yang $(1)/etc/sysrepo/yang/internal
