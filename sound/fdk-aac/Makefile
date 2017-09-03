@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fdk-aac
-PKG_VERSION:=0.1.5e
+PKG_VERSION:=0.1.5f
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Daniel Engberg <daniel.engberg.lists@pyret.net>
 PKG_LICENSE:=Fraunhofer-FDK-AAC-for-Android
@@ -17,7 +17,7 @@ PKG_LICENSE_FILES:=NOTICE
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=https://github.com/ghent360/fdk-aac/
 PKG_SOURCE_SUBDIR=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=f2070c6ed16af8c2be4f569dfecffea32353ae8f
+PKG_SOURCE_VERSION:=69127dbc50c2ad60d00f194dc8fb4a2c8b8b7cc3
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_MIRROR_MD5SUM:=
 
