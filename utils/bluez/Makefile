@@ -74,7 +74,7 @@ define Package/bluez-daemon/conffiles
 /etc/bluetooth/main.conf
 /etc/bluetooth/network.conf
 /etc/bluetooth/input.conf
-/etc/bluetooth/proximity.conf
+/etc/bluetooth/audio.conf
 /etc/config/bluetooth
 endef
 
@@ -96,6 +96,7 @@ CONFIGURE_ARGS += \
 	--disable-systemd \
 	--disable-test \
 	--disable-udev \
+	--enable-deprecated
 
 TARGET_CPPFLAGS += \
 	-D_GNU_SOURCE
@@ -152,7 +153,7 @@ define Package/bluez-daemon/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/src/main.conf $(1)/etc/bluetooth/main.conf
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/profiles/network/network.conf $(1)/etc/bluetooth/network.conf
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/profiles/input/input.conf $(1)/etc/bluetooth/input.conf
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/profiles/proximity/proximity.conf $(1)/etc/bluetooth/proximity.conf
+	$(INSTALL_DATA) ./files/audio.conf $(1)/etc/bluetooth/audio.conf
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/bluetoothd.init $(1)/etc/init.d/bluetoothd
 endef
