@@ -23,6 +23,16 @@ PKG_MIRROR_MD5SUM:=
 
 PKG_FIXUP:=autoreconf
 
+PKG_CONFIG_DEPENDS:= CONFIG_FDK-AAC_OPTIMIZE_SPEED
+
+ifeq ($(CONFIG_FDK-AAC_OPTIMIZE_SPEED),y)
+	TARGET_CFLAGS := $(filter-out -Os,$(TARGET_CFLAGS))
+	TARGET_CFLAGS += $(TARGET_CFLAGS) -O2 -flto
+	TARGET_CXXFLAGS := $(filter-out -Os,$(TARGET_CXXFLAGS))
+	TARGET_CXXFLAGS += $(TARGET_CXXFLAGS) -O2 -flto
+	TARGET_LDFLAGS += $(TARGET_LDFLAGS) -flto
+endif
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/fdk-aac
@@ -35,6 +45,10 @@ endef
 
 define Package/fdk-aac/description
   Port of the Fraunhofer FDK AAC Codec Library for Android
+endef
+
+define Package/fdk-aac/config
+	source "$(SOURCE)/Config.in"
 endef
 
 define Package/fdk-aac/install	
