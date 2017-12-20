@@ -1,6 +1,4 @@
 #
-# Copyright (C) 2017 Daniel Engberg <daniel.engberg.lists@pyret.net>
-#
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
@@ -10,7 +8,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=fdk-aac
 PKG_VERSION:=0.1.5h
 PKG_RELEASE:=1
-PKG_MAINTAINER:=Daniel Engberg <daniel.engberg.lists@pyret.net>
+PKG_MAINTAINER:=Ted Hess <thess@kitschensync.net>
 PKG_LICENSE:=Fraunhofer-FDK-AAC-for-Android
 PKG_LICENSE_FILES:=NOTICE
 
