@@ -18,7 +18,7 @@ define Package/glog
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=C++ implementation of the Google logging module
-  DEPENDS:= +libstdcpp +libpthread
+  DEPENDS:= +libstdcpp +libpthread +gflags
   URL:=https://github.com/google/glog
   MAINTAINER:=Amir Sabbaghi <amir@pichak.co>
 endef
