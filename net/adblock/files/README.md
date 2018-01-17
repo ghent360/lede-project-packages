@@ -43,8 +43,6 @@ A lot of people already use adblocker plugins within their desktop browsers, but
     * => regional blocklist for Romania, weekly updates, approx. 600 entries
     * [reg_ru](https://code.google.com/p/ruadlist)
     * => regional blocklist for Russia, weekly updates, approx. 2.000 entries
-    * [securemecca](http://www.securemecca.com)
-    * => infrequent updates, approx. 25.000 entries
     * [shallalist](http://www.shallalist.de) (categories "adv" "costtraps" "spyware" "tracker" "warez" enabled by default)
     * => daily updates, approx. 32.000 entries (a short description of all shallalist categories can be found [online](http://www.shallalist.de/categories.html))
     * [spam404](http://www.spam404.com)
@@ -64,7 +62,7 @@ A lot of people already use adblocker plugins within their desktop browsers, but
 * zero-conf like automatic installation & setup, usually no manual changes needed
 * simple but yet powerful adblock engine: adblock does not use error prone external iptables rulesets, http pixel server instances and things like that
 * supports five different dns backends / blocklist formats: dnsmasq, unbound, named (bind), kresd and dnscrypt-proxy
-* automatically selects uclient-fetch or wget as download utility (other tools like curl or aria2c are supported as well)
+* supports six different download utilities: uclient-fetch, wget, curl, aria2c, wget-nossl, busybox-wget
 * provides 'http only' mode without installed ssl library for all non-SSL blocklist sources
 * supports a wide range of router modes, even AP modes are supported
 * full IPv4 and IPv6 support
@@ -76,6 +74,7 @@ A lot of people already use adblocker plugins within their desktop browsers, but
 * minimal status & error logging to syslog, enable debug logging to receive more output
 * procd based init system support (start/stop/restart/reload/suspend/resume/query/status)
 * procd network interface trigger support or classic time based startup
+* keep the dns cache intact after adblock processing (currently supported by unbound and named)
 * conditional dns backend restarts by old/new blocklist comparison with sha256sum (default) or md5sum
 * suspend & resume adblock actions temporarily without blocklist reloading
 * output comprehensive runtime information via LuCI or via 'status' init command
@@ -86,6 +85,7 @@ A lot of people already use adblocker plugins within their desktop browsers, but
 * optional: automatic blocklist backup & restore, they will be used in case of download errors or during startup in backup mode
 * optional: 'backup mode' to re-use blocklist backups during startup, get fresh lists only via reload or restart action
 * optional: 'whitelist mode' to block access to all domains except those explicitly listed in the whitelist file
+* optional: send notification emails in case of a processing error or if the overall domain count is &le; 0
 * optional: add new adblock sources on your own via uci config
 
 ## Prerequisites
@@ -120,31 +120,37 @@ A lot of people already use adblocker plugins within their desktop browsers, but
 * **disable active dns probing in windows 10:** to prevent a yellow exclamation mark on your internet connection icon (which wrongly means connected, but no internet), please change the following registry key/value from "1" to "0" _HKLM\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet\EnableActiveProbing_
 
 ## Further adblock config options
-* usually the pre-configured adblock setup works quite well and no manual config overrides are needed, all listed options apply to the 'global' config section:
+* usually the pre-configured adblock setup works quite well and no manual overrides are needed
+* the following options apply to the 'global' config section:
     * adb\_enabled => main switch to enable/disable adblock service (default: '0', disabled)
     * adb\_debug => enable/disable adblock debug output (default: '0', disabled)
+    * adb\_fetchutil => name of the used download utility: 'uclient-fetch', 'wget', 'curl', 'aria2c', 'wget-nossl'. 'busybox' (default: 'uclient-fetch')
+    * adb\_fetchparm => special config options for the download utility (default: not set)
     * adb\_dns => select the dns backend for your environment: 'dnsmasq', 'unbound', 'named', 'kresd' or 'dnscrypt-proxy' (default: 'dnsmasq')
     * adb\_dnsdir => target directory for the generated blocklist 'adb_list.overall' (default: not set, use dns backend default)
     * adb\_trigger => set the startup trigger to a certain interface, to 'timed' or to 'none' (default: 'wan')
+
+* the following options apply to the 'extra' config section:
     * adb\_triggerdelay => additional trigger delay in seconds before adblock processing begins (default: '1')
-    * adb\_fetch => full path to a dedicated download utility, see example below (default: not set, use wget default)
-    * adb\_fetchparm => options for the download utility, see example below (default: not set, use wget default options)
     * adb\_forcedns => force dns requests to local resolver (default: '0', disabled)
     * adb\_forcesrt => force overall sort on low memory devices with less than 64 MB RAM (default: '0', disabled)
     * adb\_backup_mode => do not automatically update blocklists during startup, use backups instead (default: '0', disabled)
     * adb\_whitelist_mode => block access to all domains except those explicitly listed in the whitelist file (default: '0', disabled)
+    * adb\_dnsflush => flush DNS cache after adblock processing, i.e. enable the old restart behavior (default: '0', disabled)
+    * adb\_notify => send notification emails in case of a processing error or if the overall domain count is &le; 0 (default: '0', disabled)
+    * adb\_notifycnt => Raise minimum domain count email notification trigger (default: '0')
 
 ## Examples
-**change default dns backend to 'unbound':**  
+**change default dns backend to 'unbound':**
 
-Adblock deposits the final blocklist 'adb_list.overall' in '/var/lib/unbound' where unbound can find them in its jail. If you use manual configuration for unbound, then just include the following line in your 'server' clause:
-<pre><code>
-  include: "/var/lib/unbound/adb_list.overall"
-</code></pre>
+Adblock deposits the final blocklist 'adb_list.overall' in '/var/lib/unbound' where unbound can find them in its jail.  
+To preserve the DNS cache after adblock processing you need to install 'unbound-control'.  
   
-**change default dns backend to 'named' (bind):**  
+**change default dns backend to 'named' (bind):**
 
-Adblock deposits the final blocklist 'adb_list.overall' in '/var/lib/bind'. To use the blocklist please modify '/etc/bind/named.conf':
+Adblock deposits the final blocklist 'adb_list.overall' in '/var/lib/bind'.  
+To preserve the DNS cache after adblock processing you need to install & configure 'bind-rdnc'.  
+To use the blocklist please modify '/etc/bind/named.conf':
 <pre><code>
 in the 'options' namespace add:
   response-policy { zone "rpz"; };
@@ -158,58 +164,65 @@ and at the end of the file add:
   };
 </code></pre>
   
-**change default dns backend to 'kresd':**  
+**change default dns backend to 'kresd':**
 
-The knot-resolver (kresd) is only available on turris omnia devices. Adblock deposits the final blocklist 'adb_list.overall' in '/etc/kresd'. To use the blocklist please modify '/etc/config/resolver':
-<pre><code>
-    list rpz_file '/etc/kresd/adb_list.overall'
-</code></pre>
+The knot-resolver (kresd) is only available on Turris Omnia devices.  
+Adblock deposits the final blocklist 'adb_list.overall' in '/etc/kresd', no further configuration needed.
   
-**change default dns backend to 'dnscrypt-proxy':**  
+**change default dns backend to 'dnscrypt-proxy':**
 
-The required 'blacklist' option of dnscrypt-proxy is not enabled by default, because the package will be compiled without plugins support. Take a custom LEDE build with plugins support to use this feature. Adblock deposits the final blocklist 'adb_list.overall' in '/tmp'. To use the blocklist please modify '/etc/config/dnscrypt-proxy' per instance:
+The required 'blacklist' option of dnscrypt-proxy is not enabled by default, because the package will be compiled without plugins support.  
+Take a custom LEDE build with plugins support to use this feature. Adblock deposits the final blocklist 'adb_list.overall' in '/tmp'.  
+To use the blocklist please modify '/etc/config/dnscrypt-proxy' per instance:
 <pre><code>
   list blacklist 'domains:/tmp/adb_list.overall'
 </code></pre>
   
-**configuration for different download utilities:**
+**enable email notification via msmtp:**
+
+To use the email notification you have to install & configure the package 'msmtp'.  
+Modify the file '/etc/msmtprc':
 <pre><code>
-wget (default):
-  option adb_fetch '/usr/bin/wget'
-  option adb_fetchparm '--quiet --no-cache --no-cookies --max-redirect=0 --timeout=10 --no-check-certificate -O'
-
-aria2c:
-  option adb_fetch '/usr/bin/aria2c'
-  option adb_fetchparm '-q --timeout=10 --allow-overwrite=true --auto-file-renaming=false --check-certificate=false -o'
-
-uclient-fetch:
-  option adb_fetch '/bin/uclient-fetch'
-  option adb_fetchparm '-q --timeout=10 --no-check-certificate -O'
-
-curl:
-  option adb_fetch '/usr/bin/curl'
-  option adb_fetchparm '-s --connect-timeout 10 --insecure -o'
+[...]
+defaults
+auth            on
+tls             on
+tls_certcheck   off
+timeout         5
+syslog          LOG_MAIL
+[...]
+account         adb_notify
+host            smtp.gmail.com
+port            587
+from            dev.adblock@gmail.com
+user            dev.adblock
+password        xxx
 </code></pre>
+Edit the file '/etc/adblock/adblock.notify' and change at least the 'mail_receiver'.  
+Finally make this file executable via 'chmod' and test it directly. If no more errors come up you can comment 'mail_debug', too.
   
 **receive adblock runtime information:**
+
 <pre><code>
 /etc/init.d/adblock status
 ::: adblock runtime information
   + adblock_status  : enabled
-  + adblock_version : 3.1.0
-  + overall_domains : 5117
+  + adblock_version : 3.4.0
+  + overall_domains : 5167 (normal/backup mode)
   + fetch_utility   : wget (built-in)
   + dns_backend     : kresd (/etc/kresd)
-  + last_rundate    : 03.11.2017 22:57:41
-  + system_release  : Turris Omnia, OpenWrt omnia 15.05/3.8.4
+  + last_rundate    : 27.12.2017 20:52:35
+  + system_release  : Turris Omnia, OpenWrt omnia 15.05/3.9.1
 </code></pre>
   
 **cronjob for a regular block list update (/etc/crontabs/root):**
+
 <pre><code>
 0 06 * * *    /etc/init.d/adblock reload
 </code></pre>
   
 **blacklist entry (/etc/adblock/adblock.blacklist):**
+
 <pre><code>
 ads.example.com
 
@@ -224,6 +237,7 @@ This entry does not block:
 </code></pre>
   
 **whitelist entry (/etc/adblock/adblock.whitelist):**
+
 <pre><code>
 here.com
 
@@ -236,7 +250,7 @@ This entry does not remove:
   www.adwhere.com
 </code></pre>
   
-**query the active blocklist for a certain (sub-)domain, e.g. for whitelisting:**  
+**query the active blocklist for a certain (sub-)domain, e.g. for whitelisting:**
 
 The query function checks against the submitted (sub-)domain and recurses automatically to the upper top level domain. For every (sub-)domain it returns the first ten relevant results.
 <pre><code>
@@ -255,7 +269,7 @@ The query function checks against the submitted (sub-)domain and recurses automa
   + www-google-analytics.l.google.com
 </code></pre>
   
-**add a new blocklist source:**  
+**add a new blocklist source:**
 
 1. the easy way ...  
 example: https://easylist-downloads.adblockplus.org/rolist+easylist.txt  
