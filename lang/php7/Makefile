@@ -6,8 +6,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=php
-PKG_VERSION:=7.2.4
-PKG_RELEASE:=2
+PKG_VERSION:=7.2.6
+PKG_RELEASE:=1
 
 PKG_MAINTAINER:=Michael Heimpold <mhei@heimpold.de>
 
@@ -16,7 +16,7 @@ PKG_LICENSE_FILES:=LICENSE
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://www.php.net/distributions/
-PKG_HASH:=7916b1bd148ddfd46d7f8f9a517d4b09cd8a8ad9248734e7c8dd91ef17057a88
+PKG_HASH:=1f004e049788a3effc89ef417f06a6cf704c95ae2a718b2175185f2983381ae7
 
 PKG_FIXUP:=libtool autoreconf
 PKG_BUILD_PARALLEL:=1
@@ -167,6 +167,7 @@ CONFIGURE_ARGS+= \
 	--with-config-file-scan-dir=/etc/php7 \
 	--disable-short-tags \
 	\
+	--without-valgrind \
 	--with-pcre-regex="$(STAGING_DIR)/usr" \
 	--with-zlib="$(STAGING_DIR)/usr" \
 	  --with-zlib-dir="$(STAGING_DIR)/usr"
@@ -469,8 +470,7 @@ CONFIGURE_VARS+= \
 	php_cv_cc_rpath="no" \
 	iconv_impl_name="gnu_libiconv" \
 	ac_cv_php_xml2_config_path="$(STAGING_DIR)/host/bin/xml2-config" \
-	ac_cv_u8t_decompose=yes \
-	ac_cv_enable_valgrind_check=no \
+	ac_cv_u8t_decompose=yes
 
 define Package/php7/conffiles
 /etc/php.ini
@@ -601,12 +601,12 @@ $(eval $(call BuildModule,intl,Internationalization Functions,+PACKAGE_php7-mod-
 $(eval $(call BuildModule,json,JSON))
 $(eval $(call BuildModule,ldap,LDAP,+PACKAGE_php7-mod-ldap:libopenldap +PACKAGE_php7-mod-ldap:libsasl2))
 $(eval $(call BuildModule,mbstring,MBString))
-$(eval $(call BuildModule,mysqli,MySQL Improved Extension,+PACKAGE_php7-mod-mysqli:libmysqlclient))
+$(eval $(call BuildModule,mysqli,MySQL Improved Extension,+PACKAGE_php7-mod-mysqli:libmariadbclient))
 $(eval $(call BuildModule,opcache,OPcache,,,zend))
 $(eval $(call BuildModule,openssl,OpenSSL,+PACKAGE_php7-mod-openssl:libopenssl))
 $(eval $(call BuildModule,pcntl,PCNTL))
 $(eval $(call BuildModule,pdo,PHP Data Objects))
-$(eval $(call BuildModule,pdo-mysql,PDO driver for MySQL,+php7-mod-pdo +PACKAGE_php7-mod-pdo-mysql:libmysqlclient))
+$(eval $(call BuildModule,pdo-mysql,PDO driver for MySQL,+php7-mod-pdo +PACKAGE_php7-mod-pdo-mysql:libmariadbclient))
 $(eval $(call BuildModule,pdo-pgsql,PDO driver for PostgreSQL,+php7-mod-pdo +PACKAGE_php7-mod-pdo-pgsql:libpq))
 $(eval $(call BuildModule,pdo-sqlite,PDO driver for SQLite 3.x,+php7-mod-pdo +PACKAGE_php7-mod-pdo-sqlite:libsqlite3 +PACKAGE_php7-mod-pdo-sqlite:librt))
 $(eval $(call BuildModule,pgsql,PostgreSQL,+PACKAGE_php7-mod-pgsql:libpq))
