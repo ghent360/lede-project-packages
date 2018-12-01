@@ -7,22 +7,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tgt
-PKG_VERSION:=1.0.73
-PKG_REV:=013223dc886a03719ca02db52162056249d99448
-PKG_MIRROR_HASH:=649bd012ab0944644ff83cc2974e7a5c374d568e0f4328d9f8d352d4b59f73bb
+PKG_VERSION:=1.0.74
 PKG_RELEASE:=1
-PKG_USE_MIPS16:=0
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/fujita/tgt.git
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/fujita/tgt/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=bfc202790d5326d7a18bd3928b4bb204ffb0acf443a5ec5c16a1a0fbc53be99f
 
-PKG_SOURCE_VERSION:=$(PKG_REV)
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_REV).tar.gz
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_MAINTAINER:=Maxim Storchak <m.storchak@gmail.com>
 PKG_LICENSE:=GPL-2.0
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_SOURCE_SUBDIR)
+PKG_USE_MIPS16:=0
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -31,7 +26,7 @@ define Package/tgt
   CATEGORY:=Network
   URL:=http://stgt.sourceforge.net/
   TITLE:=userspace iSCSI target
-  DEPENDS:=+libpthread +libaio @KERNEL_AIO
+  DEPENDS:=+libpthread +libaio
 endef
 
 define Package/tgt/description

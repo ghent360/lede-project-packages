@@ -20,7 +20,7 @@ PKG_MD5SUM:=
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
-PKG_MAINTAINER:=Nicolas Thill <nico@openwrt.org>
+PKG_MAINTAINER:=
 
 PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
@@ -147,8 +147,6 @@ define Package/bluez-daemon/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/bluetooth/bluetoothd $(1)/usr/bin/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/bluetoothctl $(1)/usr/bin/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/bluetooth/obexd $(1)/usr/bin/
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DATA) ./files/bluetooth.config $(1)/etc/config/bluetooth
 	$(INSTALL_DIR) $(1)/etc/dbus-1/system.d/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/src/bluetooth.conf $(1)/etc/dbus-1/system.d/bluetooth.conf
 	$(INSTALL_DIR) $(1)/etc/bluetooth

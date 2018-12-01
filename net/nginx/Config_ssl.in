@@ -194,6 +194,11 @@ config NGINX_HTTP_SECURE_LINK
 	bool
 	prompt "Enable HTTP secure link module"
 	default n
+
+config NGINX_HTTP_SUB
+	bool
+	prompt "Enable HTTP sub module"
+	default n
 	
 config NGINX_HEADERS_MORE
 	bool
@@ -214,6 +219,7 @@ config NGINX_RTMP_MODULE
 	prompt "Enable RTMP module"
 	help
 		Add support for NGINX-based Media Streaming Server module.
+		DASH enhanced - https://github.com/ut0mt8/nginx-rtmp-module
 	default n
 
 config NGINX_TS_MODULE

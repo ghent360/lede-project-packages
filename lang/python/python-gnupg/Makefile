@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-gnupg
-PKG_VERSION:=0.4.1
-PKG_RELEASE:=1
+PKG_VERSION:=0.4.3
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://pypi.python.org/packages/fc/f1/df6c06da34939f67ea622e0b31dbc5bdb5121b271ab530d151df59974425/
-PKG_HASH:=ef47b02eaf41dee3cf4b02ddf83130827318de9fe3eae89d01a3f05859e20e1a
+PKG_SOURCE_URL:=https://files.pythonhosted.org/packages/source/p/python-gnupg
+PKG_HASH:=2d158dfc6b54927752b945ebe57e6a0c45da27747fa3b9ae66eccc0d2147ac0d
 
 PKG_LICENSE:=GPL-3.0+
 PKG_LICENSE_FILES:=LICENSE
@@ -27,7 +27,7 @@ define Package/python-gnupg/Default
   SECTION:=lang
   CATEGORY:=Languages
   SUBMENU:=Python
-  URL:=https://github.com/isislovecruft/python-gnupg
+  URL:=https://gnupg.readthedocs.io/en/latest/
   DEPENDS:=+gnupg
 endef
 

@@ -8,14 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cryptsetup
-PKG_VERSION:=2.0.3
+PKG_VERSION:=2.0.5
 PKG_RELEASE:=1
-PKG_LICENSE:=GPL-2.0+ LGPL-2.1+
-PKG_LICENSE_FILES:=COPYING COPYING.LGPL
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/linux/utils/cryptsetup/v2.0
-PKG_HASH:=4d6cca04c1f5ff4a68d045d190efb2623087eda0274ded92f92a4b6911e501d4
+PKG_HASH:=a0f72ca2c824a5a555dc8924413dfe947eca23ab2e30bcff54eaafefe5fe301d
+
+PKG_LICENSE:=GPL-2.0+ LGPL-2.1+
+PKG_LICENSE_FILES:=COPYING COPYING.LGPL
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
@@ -30,7 +31,7 @@ define Package/cryptsetup/Default
   SUBMENU:=Encryption
   TITLE:=Cryptsetup
   DEPENDS:=+libblkid +libuuid +libpopt +lvm2 +libdevmapper +libjson-c +@KERNEL_DIRECT_IO
-  URL:=http://code.google.com/p/cryptsetup/
+  URL:=https://gitlab.com/cryptsetup/cryptsetup/
 endef
 
 define Package/cryptsetup
