@@ -8,6 +8,7 @@
 +       communicate with bluetoothd
    <policy group="lp">
      <allow send_destination="org.bluez"/>
+     <allow send_destination="org.bluez.obex"/>
 -  </policy>
 +  </policy> -->
  
