@@ -20,11 +20,11 @@ directly, and to do so it needs the full path of the daemon.
 +++ b/Makefile.obexd
 @@ -1,12 +1,12 @@
  if SYSTEMD
- systemduserunitdir = @SYSTEMD_USERUNITDIR@
+ systemduserunitdir = $(SYSTEMD_USERUNITDIR)
  systemduserunit_DATA = obexd/src/obex.service
 +endif
  
- dbussessionbusdir = @DBUS_SESSIONBUSDIR@
+ dbussessionbusdir = $(DBUS_SESSIONBUSDIR)
  dbussessionbus_DATA = obexd/src/org.bluez.obex.service
 -endif
  
