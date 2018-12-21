@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007-2010 OpenWrt.org
+# Copyright (C) 2007-2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -12,16 +12,17 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/erikd/libsndfile.git
+PKG_SOURCE_DATE:=2018-11-27
 PKG_SOURCE_VERSION:=b4bd397ca74f4c72b9cabaae66fef0c3d5a8c527
-PKG_MIRROR_HASH:=8e7cb3da240888c9c0e17d066e904d720c94dd379d3e5105df69797e2b321016
+PKG_MIRROR_HASH:=bbef527d5cdc97ad14ca5337b692b7adf8f725e813ca48b445111669f79f5c5e
 
 PKG_LICENSE:=LGPLv2.1
 PKG_LICENSE_FILES:=COPYING
 
-PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/libsndfile
   SECTION:=libs
@@ -36,18 +37,10 @@ define Package/libsndfile/description
  containing sampled audio data.
 endef
 
-CONFIGURE_ARGS+= \
-	--disable-alsa \
-	--disable-external-libs \
-	--disable-sqlite
-
-CONFIGURE_VARS += \
-	ac_cv_sys_file_offset_bits=64 \
-	ac_cv_sys_large_files=yes \
-	ac_cv_sys_largefile_CFLAGS=-D_LARGFILE_SOURCE \
-	ac_cv_sys_largefile_LDFLAGS= \
-	ac_cv_sys_largefile_LIBS= \
-	ac_cv_sys_largefile_source=yes
+CMAKE_OPTIONS += \
+	-DBUILD_SHARED_LIBS:BOOL=ON \
+	-DENABLE_EXTERNAL_LIBS:BOOL=FALSE \
+	-DBUILD_REGTEST:BOOL=FALSE
 
 TARGET_CFLAGS += $(FPIC)
 
