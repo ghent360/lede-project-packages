@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=haproxy
-PKG_VERSION:=1.8.15
+PKG_VERSION:=1.8.19
 PKG_RELEASE:=2
 
 PKG_SOURCE:=haproxy-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.haproxy.org/download/1.8/src/
-PKG_HASH:=7113862f1146d7de8b8e64f45826ab3533c7f7f7b7767e24c08f7c762202a032
+PKG_HASH:=64f5fbfd4e09ffeaf26cb6667398ba780704a14e96e60000caa8bf69962ba734
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_LICENSE:=GPL-2.0
@@ -68,11 +68,6 @@ endef
 define Package/haproxy/description
 $(call Package/haproxy/Default/description)
  This package is built with SSL and LUA support.
-endef
-
-define Package/haproxy/config
-	select CONFIG_OPENSSL_WITH_DEPRECATED
-	$(call Package/haproxy/Default/config)
 endef
 
 define Package/haproxy-nossl
