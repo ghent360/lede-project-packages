@@ -9,37 +9,48 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=seafile-seahub
 PKG_VERSION:=6.3.4
-PKG_RELEASE:=1
-PKG_LICENSE:=Apache-2.0
+PKG_RELEASE:=7
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/haiwen/seahub/tar.gz/v$(PKG_VERSION)-server?
 PKG_HASH:=53a9efdb6791fd3a2a191e89cb0f133632056046ec08adbb2ad72088e6161430
-PKG_BUILD_DIR:=$(BUILD_DIR)/seahub-$(PKG_VERSION)-server
 
-PKG_BUILD_DEPENDS:=pytz/host
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
+PKG_LICENSE:=Apache-2.0
+PKG_LICENSE_FILES:=LICENSE.txt
+
+HOST_PYTHON_PACKAGE_BUILD_DEPENDS:="django>=1.11"
+
+PKG_BUILD_DIR:=$(BUILD_DIR)/seahub-$(PKG_VERSION)-server
 
 include $(INCLUDE_DIR)/package.mk
 include ../../lang/python/python-package.mk
 
+SEAFILE_PYTHON_DEPENDS:= \
+	simplejson chardet dateutil mysqlclient pytz qrcode requests requests-oauthlib \
+	django1 django-constance django-appconf django-compressor django-formtools \
+	django-jsonfield django-picklefield django-postoffice django-restframework \
+	pillow django-simple-captcha django-statici18n django-webpack-loader
+
 define Package/seafile-seahub
-    SECTION:=net
-    CATEGORY:=Network
-    TITLE:=Seafile server - seahub component
-    MAINTAINER:=Gergely Kiss <mail.gery@gmail.com>
-    URL:=https://seafile.com/
-    DEPENDS:=+simplejson +python +pillow +chardet +django +django-appconf \
-		+django-compressor +django-constance +django-formtools +django-jsonfield \
-		+django-picklefield +django-postoffice +django-restframework \
-		+django-simple-captcha +django-statici18n +django-webpack-loader +et_xmlfile \
-		+flup +gunicorn +jdcal +openpyxl +python-dateutil +python-mysql \
-		+python-qrcode +python-requests +python-requests-oauthlib +pytz +rcssmin
+  SECTION:=net
+  CATEGORY:=Network
+  TITLE:=Seafile server - seahub component
+  URL:=https://seafile.com/
+  DEPENDS:=+python \
+	+python-flup +gunicorn +openpyxl \
+	$(foreach dep,$(SEAFILE_PYTHON_DEPENDS),+python-$(dep))
 endef
 
 define Build/Configure
 endef
 
+MAKE_VARS += \
+	PYTHON="$(HOST_PYTHON_BIN)" \
+	DJANGO_ADMIN_PY="$(STAGING_DIR_HOSTPKG)/bin/django-admin"
+
 define Build/Compile
+	$(call Build/Compile/HostPyPipInstall,$(HOST_PYTHON_PACKAGE_BUILD_DEPENDS))
 	$(call Build/Compile/Default,locale)
 endef
 

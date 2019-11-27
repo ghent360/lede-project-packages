@@ -32,6 +32,8 @@ MM_BLACKHOLE=""
 MMX_UNREACHABLE=""
 MM_UNREACHABLE=""
 
+# return true(=0) if has any mwan3 interface enabled
+# otherwise return false
 mwan3_rtmon_ipv4()
 {
 	local tid=1
@@ -61,6 +63,8 @@ mwan3_rtmon_ipv4()
 	return $ret
 }
 
+# return true(=0) if has any mwan3 interface enabled
+# otherwise return false
 mwan3_rtmon_ipv6()
 {
 	local tid=1
@@ -1000,7 +1004,7 @@ mwan3_set_user_iptables_rule()
 			case $proto in
 				tcp|udp)
 				[ "$global_logging" = "1" ] && [ "$rule_logging" = "1" ] && {
-					$IPT -A mwan3_rules \
+					$IPT4 -A mwan3_rules \
 						-p $proto \
 						-s $src_ip \
 						-d $dest_ip $ipset \
@@ -1247,34 +1251,21 @@ mwan3_report_rules_v6()
 
 mwan3_flush_conntrack()
 {
-	local flush_conntrack
+	local interface="$1"
+	local action="$2"
 
-	config_get flush_conntrack $1 flush_conntrack never
+	handle_flush() {
+		local flush_conntrack="$1"
+		local action="$2"
+
+		if [ "$action" = "$flush_conntrack" ]; then
+			echo f > ${CONNTRACK_FILE}
+			$LOG info "Connection tracking flushed for interface '$interface' on action '$action'"
+		fi
+	}
 
 	if [ -e "$CONNTRACK_FILE" ]; then
-		case $flush_conntrack in
-			ifup)
-				[ "$3" = "ifup" ] && {
-					echo f > ${CONNTRACK_FILE}
-					$LOG info "connection tracking flushed on interface $1 ($2) $3"
-				}
-				;;
-			ifdown)
-				[ "$3" = "ifdown" ] && {
-					echo f > ${CONNTRACK_FILE}
-					$LOG info "connection tracking flushed on interface $1 ($2) $3"
-				}
-				;;
-			always)
-				echo f > ${CONNTRACK_FILE}
-				$LOG info "connection tracking flushed on interface $1 ($2) $3"
-				;;
-			never)
-				$LOG info "connection tracking not flushed on interface $1 ($2) $3"
-				;;
-		esac
-	else
-		$LOG warning "connection tracking not enabled"
+		config_list_foreach "$interface" flush_conntrack handle_flush "$action"
 	fi
 }
 

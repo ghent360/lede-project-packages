@@ -6,14 +6,12 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=lua-libmodbus-$(PKG_VERSION).tar.gz
 PKG_SOURCE_SUBDIR:=lua-libmodbus-$(PKG_VERSION)
-PKG_SOURCE_URL:=https://codeload.github.com/remakeelectric/lua-libmodbus/tar.gz/v$(PKG_VERSION)?
+PKG_SOURCE_URL:=https://codeload.github.com/etactica/lua-libmodbus/tar.gz/v$(PKG_VERSION)?
 PKG_HASH:=90aff3a2cfe7f91f167ad4ea00f55c2aa86cf2aef93d022e3b2cf906a1791254
 PKG_SOURCE_VERSION:=v$(PKG_VERSION)
 
 PKG_MAINTAINER:=Karl Palsson <karlp@etactica.com>
 PKG_LICENSE:=MIT
-
-PKG_BUILD_DIR:=$(BUILD_DIR)/lua-libmodbus-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -22,7 +20,7 @@ define Package/lua-libmodbus
   SECTION:=lang
   CATEGORY:=Languages
   TITLE:=lua-libmodbus
-  URL:=https://github.com/remakeelectric/lua-libmodbus
+  URL:=https://github.com/etactica/lua-libmodbus
   DEPENDS:=+liblua +libmodbus
 endef
 

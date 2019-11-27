@@ -8,23 +8,26 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icu4c
-PKG_VERSION:=63.1
+MAJOR_VERSION:=65
+MINOR_VERSION:=1
+PKG_VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION)
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-63_1-src.tgz
-PKG_SOURCE_URL:=http://download.icu-project.org/files/$(PKG_NAME)/$(PKG_VERSION)
-PKG_HASH:=05c490b69454fce5860b7e8e2821231674af0a11d7ef2febea9a32512998cb9d
+PKG_SOURCE:=$(PKG_NAME)-$(MAJOR_VERSION)_$(MINOR_VERSION)-src.tgz
+PKG_SOURCE_URL:=https://github.com/unicode-org/icu/releases/download/release-$(MAJOR_VERSION)-$(MINOR_VERSION)
+PKG_HASH:=53e37466b3d6d6d01ead029e3567d873a43a5d1c668ed2278e253b683136d948
 
-PKG_LICENSE:=ICU-1.8.1+
+PKG_LICENSE:=ICU
 PKG_LICENSE_FILES:=LICENSE
+PKG_CPE_ID:=cpe:/a:icu-project:international_components_for_unicode
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_BUILD_DEPENDS:=icu/host
+HOST_BUILD_DEPENDS:=python3/host
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
@@ -108,6 +111,11 @@ HOST_CONFIGURE_ARGS:= \
 	--disable-extras \
 	--enable-dyload \
 	--prefix=$(STAGING_DIR_HOSTPKG)
+
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	mkdir -p $(PKG_BUILD_DIR)/data/out
+endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include

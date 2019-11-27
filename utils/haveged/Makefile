@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=haveged
-PKG_VERSION:=1.9.4
-PKG_RELEASE:=1
+PKG_VERSION:=1.9.8
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://codeload.github.com/jirka-h/haveged/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=c4959d3cb1fa6391d16a3aa1ba4d82cd3a0d497206ae4b87d638088c0664e5aa
+PKG_SOURCE_URL:=https://codeload.github.com/jirka-h/haveged/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=99aa1996c6e39ea2459cfc37addfb8b1eecc63f3a2b6da9db17b22e76b6851ae
 PKG_BUILD_DIR:=$(BUILD_DIR)/haveged-$(PKG_VERSION)
 PKG_LICENSE:=GPLv3
 

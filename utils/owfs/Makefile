@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=owfs
 PKG_VERSION:=3.2p3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/owfs/owfs/releases/download/v$(PKG_VERSION)
@@ -17,6 +17,7 @@ PKG_HASH:=b8d33eba57d4a2f6c8a11ff23f233e3248bd75a42c8219b058a888846edd8717
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=GPL-2.0
+PKG_CPE_ID:=cpe:/a:owfs:owfs
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -86,8 +87,7 @@ define Package/libow
   DEPENDS:= \
     +libpthread \
     +LIBOW_MASTER_USB:libusb-compat \
-    +LIBOW_MASTER_W1:kmod-w1 \
-    +libavahi-client
+    +LIBOW_MASTER_W1:kmod-w1
   TITLE:=OWFS - common shared library
 endef
 
@@ -192,6 +192,7 @@ CONFIGURE_ARGS += \
 	--disable-owphp \
 	--disable-owtcl \
 	--disable-swig \
+	--disable-avahi \
 	$(if $(CONFIG_LIBOW_MASTER_USB),--enable-usb,--disable-usb) \
 	$(if $(CONFIG_LIBOW_MASTER_W1),--enable-w1,--disable-w1) \
 	$(if $(CONFIG_LIBOW_MASTER_I2C),--enable-i2c,--disable-i2c) \

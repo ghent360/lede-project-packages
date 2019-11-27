@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sqlite
-PKG_VERSION:=3260000
-PKG_RELEASE:=3
+PKG_VERSION:=3300100
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-autoconf-$(PKG_VERSION).tar.gz
-PKG_HASH:=5daa6a3fb7d1e8c767cd59c4ded8da6e4b00c61d3b466d0685e35c4dd6d7bf5d
-PKG_SOURCE_URL:=https://www.sqlite.org/2018/
+PKG_HASH:=8c5a50db089bd2a1b08dbc5b00d2027602ca7ff238ba7658fabca454d4298e60
+PKG_SOURCE_URL:=https://www.sqlite.org/2019/
 
 PKG_LICENSE:=PUBLICDOMAIN
 PKG_LICENSE_FILES:=
@@ -37,13 +37,12 @@ PKG_CONFIG_DEPENDS := \
 	CONFIG_SQLITE3_LIBEDIT \
 	CONFIG_SQLITE3_READLINE \
 	CONFIG_SQLITE3_RTREE \
-	CONFIG_SQLITE3_SESSION \
-	CONFIG_SQLITE3_THREADSAFE
+	CONFIG_SQLITE3_SESSION
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sqlite3/Default
-  SUBMENU:=database
+  SUBMENU:=Database
   TITLE:=SQLite (v3.x) database engine
   URL:=http://www.sqlite.org/
   MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
@@ -60,6 +59,7 @@ define Package/libsqlite3
   CATEGORY:=Libraries
   DEPENDS:=+libpthread +zlib
   TITLE+= (library)
+  ABI_VERSION:=0
 endef
 
 define Package/libsqlite3/description
@@ -105,14 +105,14 @@ CONFIGURE_ARGS += \
 	--disable-static-shell \
 	--enable-shared \
 	--enable-static \
+	--enable-threadsafe \
 	$(if $(CONFIG_SQLITE3_DYNAMIC_EXTENSIONS),--enable-dynamic-extensions,--disable-dynamic-extensions) \
 	$(if $(CONFIG_SQLITE3_FTS3),--enable-fts3,--disable-fts3) \
 	$(if $(CONFIG_SQLITE3_FTS3),--enable-fts4,--disable-fts4) \
 	$(if $(CONFIG_SQLITE3_FTS3),--enable-fts5,--disable-fts5) \
 	$(if $(CONFIG_SQLITE3_JSON1),--enable-json1,--disable-json1) \
 	$(if $(CONFIG_SQLITE3_RTREE),--enable-rtree,--disable-rtree) \
-	$(if $(CONFIG_SQLITE3_SESSION),--enable-session,--disable-session) \
-	$(if $(CONFIG_SQLITE3_THREADSAFE),--enable-threadsafe,--disable-threadsafe)
+	$(if $(CONFIG_SQLITE3_SESSION),--enable-session,--disable-session)
 
 ifeq ($(CONFIG_SQLITE3_LIBEDIT),y)
 CONFIGURE_ARGS+=--disable-readline
@@ -125,19 +125,19 @@ endif
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/sqlite3{,ext}.h $(1)/usr/include/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libsqlite3.{a,so*} $(1)/usr/lib/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/sqlite3.pc $(1)/usr/lib/pkgconfig/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libsqlite3.{a,so*} $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/sqlite3{,ext}.h $(1)/usr/include
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/sqlite3.pc $(1)/usr/lib/pkgconfig
 endef
 
 define Package/libsqlite3/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libsqlite3.so.* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libsqlite3.so.$(ABI_VERSION)* $(1)/usr/lib
 endef
 
 define Package/sqlite3-cli/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/sqlite3 $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/sqlite3 $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,libsqlite3))

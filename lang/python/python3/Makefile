@@ -14,15 +14,17 @@ PYTHON_VERSION:=$(PYTHON3_VERSION)
 PYTHON_VERSION_MICRO:=$(PYTHON3_VERSION_MICRO)
 
 PKG_NAME:=python3
-PKG_RELEASE:=4
+PKG_RELEASE:=3
 PKG_VERSION:=$(PYTHON_VERSION).$(PYTHON_VERSION_MICRO)
 
 PKG_SOURCE:=Python-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://www.python.org/ftp/python/$(PKG_VERSION)
-PKG_HASH:=d83fe8ce51b1bb48bbcf0550fd265b9a75cdfdfa93f916f9e700aef8444bf1bb
+PKG_HASH:=b356244e13fb5491da890b35b13b2118c3122977c2cd825e3eb6e7d462030d84
 
-PKG_LICENSE:=PSF
-PKG_LICENSE_FILES:=LICENSE Modules/_ctypes/libffi_msvc/LICENSE Modules/_ctypes/darwin/LICENSE Modules/_ctypes/libffi/LICENSE Modules/_ctypes/libffi_osx/LICENSE Tools/pybench/LICENSE
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>, Jeffery To <jeffery.to@gmail.com>
+PKG_LICENSE:=Python/2.0
+PKG_LICENSE_FILES:=LICENSE Doc/copyright.rst Doc/license.rst Modules/_ctypes/darwin/LICENSE Modules/_ctypes/libffi_osx/LICENSE Modules/expat/COPYING
+PKG_CPE_ID:=cpe:/a:python:python
 
 # This file provides the necsessary host build variables
 include ../python3-host.mk
@@ -39,6 +41,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/Python-$(PKG_VERSION)
 HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/Python-$(PKG_VERSION)
 
 PKG_CONFIG_DEPENDS:= \
+	CONFIG_PACKAGE_python3-pkg-resources \
 	CONFIG_PACKAGE_python3-setuptools CONFIG_PACKAGE_python3-pip \
 	CONFIG_PYTHON3_BLUETOOTH_SUPPORT
 
@@ -54,7 +57,6 @@ define Package/python3/Default
   CATEGORY:=Languages
   TITLE:=Python $(PYTHON_VERSION) programming language
   URL:=https://www.python.org/
-  MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 endef
 
 define Package/python3/Default/description
@@ -110,6 +112,7 @@ define Py3BasePackage
       -|/usr/lib/python$(PYTHON_VERSION)/*/tests
     endif
   endef
+  Py3Package/$(1)/install?=:
 endef
 
 include ./files/python3-package-*.mk
@@ -126,8 +129,7 @@ endef
 
 MAKE_FLAGS+=\
 	CROSS_COMPILE=yes \
-	LD="$(TARGET_CC)" \
-	PGEN=pgen3
+	LD="$(TARGET_CC)"
 
 EXTRA_CFLAGS+= \
 	-DNDEBUG -fno-inline
@@ -170,20 +172,38 @@ define Build/Prepare
 endef
 
 ifdef CONFIG_PACKAGE_python3-setuptools
+PYTHON3_SETUPTOOLS_BUILD:=1
+endif
+
+ifdef CONFIG_PACKAGE_python3-pkg-resources
+PYTHON3_SETUPTOOLS_BUILD:=1
+endif
+
+ifeq ($(PYTHON3_SETUPTOOLS_BUILD),1)
 define Build/Compile/python3-setuptools
-	$(STAGING_DIR_HOSTPKG)/bin/pip3 install \
+	$(HOST_PYTHON3_PIP) \
+		--disable-pip-version-check \
+		--cache-dir "$(DL_DIR)/pip-cache" \
+		install \
 		--ignore-installed \
-		--root=$(PKG_BUILD_DIR)/install-setuptools --prefix=. \
+		--root=$(PKG_BUILD_DIR)/install-setuptools \
+		--prefix=/usr \
 		$(PKG_BUILD_DIR)/Lib/ensurepip/_bundled/setuptools-$(PYTHON3_SETUPTOOLS_VERSION)-py2.py3-none-any.whl
+	$(call PatchDir,$(PKG_BUILD_DIR)/install-setuptools/usr/lib/python$(PYTHON3_VERSION)/site-packages,./patches-setuptools,)
 endef
 endif # CONFIG_PACKAGE_python3-setuptools
 
 ifdef CONFIG_PACKAGE_python3-pip
 define Build/Compile/python3-pip
-	$(STAGING_DIR_HOSTPKG)/bin/pip3 install \
+	$(HOST_PYTHON3_PIP) \
+		--disable-pip-version-check \
+		--cache-dir "$(DL_DIR)/pip-cache" \
+		install \
 		--ignore-installed \
-		--root=$(PKG_BUILD_DIR)/install-pip --prefix=. \
+		--root=$(PKG_BUILD_DIR)/install-pip \
+		--prefix=/usr \
 		$(PKG_BUILD_DIR)/Lib/ensurepip/_bundled/pip-$(PYTHON3_PIP_VERSION)-py2.py3-none-any.whl
+	$(call PatchDir,$(PKG_BUILD_DIR)/install-pip/usr/lib/python$(PYTHON3_VERSION)/site-packages,./patches-pip,)
 endef
 endif # CONFIG_PACKAGE_python3-pip
 
@@ -195,23 +215,24 @@ define Build/Compile
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include/ $(1)/usr/lib/
-	$(INSTALL_DIR) $(1)/usr/lib/python$(PYTHON_VERSION)/
-	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(INSTALL_DIR) $(1)/usr/include $(1)/usr/lib $(1)/usr/lib/pkgconfig
+	$(INSTALL_DIR) $(2)/bin
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/include/python$(PYTHON_VERSION) \
 		$(1)/usr/include/
 	$(CP) \
-		$(HOST_PYTHON3_LIB_DIR) \
+		$(PKG_INSTALL_DIR)/usr/lib/python$(PYTHON_VERSION) \
 		$(PKG_INSTALL_DIR)/usr/lib/libpython$(PYTHON_VERSION).so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/pkgconfig/python3.pc \
-		$(PKG_INSTALL_DIR)/usr/lib/pkgconfig/python-$(PYTHON3_VERSION).pc \
+		$(PKG_INSTALL_DIR)/usr/lib/pkgconfig/python*.pc \
 		$(1)/usr/lib/pkgconfig
-	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/python$(PYTHON_VERSION)/config-$(PYTHON_VERSION) \
-		$(1)/usr/lib/python$(PYTHON_VERSION)/
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)/usr/bin/python$(PYTHON_VERSION)-config \
+		$(2)/bin/
+	$(SED) \
+		's|^prefix_real=.*$$$$|prefix_real="$(PYTHON3_DIR)"|' \
+		$(2)/bin/python$(PYTHON_VERSION)-config
 endef
 
 PYTHON3_BASE_LIB_FILES:= \
@@ -264,16 +285,24 @@ define Py3Package/python3-base/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libpython$(PYTHON_VERSION).so* $(1)/usr/lib/
 endef
 
+Py3Package/python3-light/install:=:
+Py3Package/python3/install:=:
+
 define Py3Package/python3/filespec
 -|$(PYTHON3_PKG_DIR)
 endef
 
 HOST_LDFLAGS += \
-	$$$$(pkg-config --static --libs libcrypto libssl) -Wl$(comma)-rpath=$(STAGING_DIR_HOSTPKG)/lib
+	-Wl$(comma)-rpath$(comma)$(STAGING_DIR_HOSTPKG)/lib
 
 ifeq ($(HOST_OS),Linux)
 HOST_LDFLAGS += \
 	-Wl,--no-as-needed -lrt
+endif
+
+ifeq ($(HOST_OS),Darwin)
+HOST_CONFIGURE_VARS += \
+	ac_cv_header_libintl_h=no
 endif
 
 HOST_CONFIGURE_ARGS+= \
@@ -283,18 +312,45 @@ HOST_CONFIGURE_ARGS+= \
 	--prefix=$(HOST_PYTHON3_DIR) \
 	--exec-prefix=$(HOST_PYTHON3_DIR) \
 	--with-system-expat=$(STAGING_DIR_HOSTPKG) \
-	--with-ensurepip=install \
+	--with-ensurepip=upgrade \
 	CONFIG_SITE=
 
+define Host/Configure
+	$(SED) 's/^ENABLE_USER_SITE = None$$$$/ENABLE_USER_SITE = False/' $(HOST_BUILD_DIR)/Lib/site.py
+	$(call Host/Configure/Default)
+endef
+
 define Host/Compile
-	+$(HOST_MAKE_VARS) $(MAKE) $(HOST_JOBS) -C $(HOST_BUILD_DIR) python Parser/pgen
+	+$(HOST_MAKE_VARS) $(MAKE) $(HOST_JOBS) -C $(HOST_BUILD_DIR) python
 	+$(HOST_MAKE_VARS) $(MAKE) $(HOST_JOBS) -C $(HOST_BUILD_DIR) sharedmods
 endef
 
 define Host/Install
+	$(if $(wildcard $(HOST_PYTHON3_PKG_DIR)/.setuptools_installed_$(PYTHON3_SETUPTOOLS_VERSION)-$(PYTHON3_SETUPTOOLS_PKG_RELEASE)),,
+		rm -rf \
+			$(HOST_PYTHON3_PKG_DIR)/easy_install.py \
+			$(HOST_PYTHON3_PKG_DIR)/pkg_resources \
+			$(HOST_PYTHON3_PKG_DIR)/setuptools \
+			$(HOST_PYTHON3_PKG_DIR)/setuptools-* \
+			$(HOST_PYTHON3_PKG_DIR)/.setuptools-patched* \
+			$(HOST_PYTHON3_PKG_DIR)/.setuptools_installed_*
+	)
+	$(if $(wildcard $(HOST_PYTHON3_PKG_DIR)/.pip_installed_$(PYTHON3_PIP_VERSION)-$(PYTHON3_PIP_PKG_RELEASE)),,
+		rm -rf \
+			$(HOST_PYTHON3_PKG_DIR)/pip \
+			$(HOST_PYTHON3_PKG_DIR)/pip-* \
+			$(HOST_PYTHON3_PKG_DIR)/.pip-patched* \
+			$(HOST_PYTHON3_PKG_DIR)/.pip_installed_*
+	)
 	$(MAKE) -C $(HOST_BUILD_DIR) install
-	$(INSTALL_DIR) $(HOST_PYTHON3_DIR)/bin/
-	$(INSTALL_BIN) $(HOST_BUILD_DIR)/Parser/pgen $(HOST_PYTHON3_DIR)/bin/pgen3
+	$(if $(wildcard $(HOST_PYTHON3_PKG_DIR)/.setuptools_installed_$(PYTHON3_SETUPTOOLS_VERSION)-$(PYTHON3_SETUPTOOLS_PKG_RELEASE)),,
+		$(call HostPatchDir,$(HOST_PYTHON3_PKG_DIR),./patches-setuptools,)
+		touch $(HOST_PYTHON3_PKG_DIR)/.setuptools_installed_$(PYTHON3_SETUPTOOLS_VERSION)-$(PYTHON3_SETUPTOOLS_PKG_RELEASE)
+	)
+	$(if $(wildcard $(HOST_PYTHON3_PKG_DIR)/.pip_installed_$(PYTHON3_PIP_VERSION)-$(PYTHON3_PIP_PKG_RELEASE)),,
+		$(call HostPatchDir,$(HOST_PYTHON3_PKG_DIR),./patches-pip,)
+		touch $(HOST_PYTHON3_PKG_DIR)/.pip_installed_$(PYTHON3_PIP_VERSION)-$(PYTHON3_PIP_PKG_RELEASE)
+	)
 endef
 
 $(eval $(call HostBuild))

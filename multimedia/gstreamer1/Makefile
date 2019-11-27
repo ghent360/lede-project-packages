@@ -8,23 +8,25 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gstreamer1
-PKG_VERSION:=1.14.4
-PKG_RELEASE:=2
+PKG_VERSION:=1.16.1
+PKG_RELEASE:=1
 
 PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org> \
 		Ted Hess <thess@kitschensync.net>
 
 PKG_LICENSE:=LGPLv2
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:gstreamer_project:gstreamer
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/gstreamer-$(PKG_VERSION)
 PKG_SOURCE:=gstreamer-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://gstreamer.freedesktop.org/src/gstreamer
-PKG_HASH:=f94f6696c5f05a3b3a9183e39c5f5c0b779f75a04c0efa497e7920afa985ffc7
+PKG_HASH:=02211c3447c4daa55919c5c0f43a82a6fbb51740d57fc3af0639d46f1cf4377d
 
 PKG_FIXUP:=autoreconf
 PKG_REMOVE_FILES:=autogen.sh aclocal.m4
 
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -118,23 +120,25 @@ GST_VERSION:=1.0
 
 CONFIGURE_ARGS += \
 	--enable-static \
+	--disable-Bsymbolic \
 	--disable-benchmarks \
+	--disable-debug \
 	--disable-examples \
 	--disable-failing-tests \
 	--disable-fatal-warnings \
 	--disable-introspection \
+	--disable-glib-asserts \
+	--disable-gobject-cast-checks \
 	--disable-gst-tracer-hooks \
+	--disable-gst-debug \
 	--disable-gtk-doc-html \
+	--disable-rpath \
 	--disable-tests \
 	--disable-valgrind \
 	--without-dw \
 	--without-libiconv-prefix \
 	--without-libintl-prefix \
 	--without-unwind
-
-EXTRA_LDFLAGS+= \
-	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
-	$(if $(ICONV_FULL),-liconv)
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/gstreamer-$(GST_VERSION)

@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=file
-PKG_VERSION:=5.35
+PKG_VERSION:=5.37
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://src.fedoraproject.org/lookaside/pkgs/file/ \
 	http://download.openpkg.org/components/cache/file/ \
 	ftp://ftp.astron.com/pub/file/
-PKG_HASH:=30c45e817440779be7aac523a905b123cba2a6ed0bf4f5439e1e99ba940b5546
+PKG_HASH:=e9c13967f7dd339a3c241b7710ba093560b9a33013491318e88e6b8b57bae07f
 
 PKG_LICENSE:=BSD-2c
 PKG_LICENSE_FILES:=COPYING
@@ -47,14 +47,18 @@ $(call Package/file/Default)
   DEPENDS:=+zlib
 endef
 
+TARGET_CFLAGS += $(FPIC)
+TARGET_LDFLAGS += -Wl,--gc-sections,--as-needed
+
 CONFIGURE_ARGS += \
 	--enable-shared \
 	--enable-static \
-	--disable-libseccomp
+	--disable-libseccomp \
+	--disable-rpath \
+	--disable-warnings \
+	--without-pic
 
 MAKE_PATH := src
-
-TARGET_CFLAGS += $(FPIC)
 
 define Build/Compile/magic
 	( cd $(PKG_BUILD_DIR)/magic/Magdir; \

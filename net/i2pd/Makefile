@@ -9,14 +9,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=i2pd
-PKG_VERSION:=2.22.0
+PKG_VERSION:=2.28.0
 PKG_RELEASE:=1
 PKG_BUILD_PARALLEL:=1
 
-PKG_SOURCE_URL:=https://codeload.github.com/PurpleI2P/i2pd/tar.gz/$(PKG_VERSION)?
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_HASH:=6547d7a560482c5eda9106ae19267bc8afbb6af48fed3bebf423ade28103e173
-PKG_LICENSE:=BSD-3-clause
+PKG_SOURCE_URL:=https://codeload.github.com/PurpleI2P/i2pd/tar.gz/$(PKG_VERSION)?
+PKG_HASH:=181327edc7cf5b3c25ee51ecc518a4da90fa9e421eca2107996791038a514a21
+
+PKG_MAINTAINER:=David Yang <mmyangfl@gmail.com>
+PKG_LICENSE:=BSD-3-Clause
+PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -28,7 +31,6 @@ define Package/i2pd
 	TITLE:=full-featured C++ implementation of I2P client
 	URL:=https://github.com/PurpleI2P/i2pd
 	USERID:=i2pd:i2pd
-	MAINTAINER:=David Yang <mmyangfl@gmail.com>
 endef
 
 define Package/i2pd/description
@@ -38,9 +40,10 @@ define Package/i2pd/description
 endef
 
 define Package/i2pd/conffiles
+	/etc/config/i2pd
 	/etc/i2pd/i2pd.conf
-	/etc/i2pd/subscriptions.txt
 	/etc/i2pd/tunnels.conf
+	/etc/i2pd/tunnels.d/*
 endef
 
 TARGET_LDFLAGS+=-latomic
@@ -51,14 +54,18 @@ define Package/i2pd/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/i2pd $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/usr/share/i2pd
 	$(CP) $(PKG_BUILD_DIR)/contrib/certificates  $(1)/usr/share/i2pd
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/i2pd.config $(1)/etc/config/i2pd
 	$(INSTALL_DIR) $(1)/etc/i2pd
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/contrib/i2pd.conf $(1)/etc/i2pd
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/contrib/i2pd.conf $(1)/etc/i2pd
 	$(SED) ' \
 		s/127.0.0.1/192.168.1.1/g; \
 		s/datadir = \/var\/lib/datadir = \/etc/ \
 	' $(1)/etc/i2pd/i2pd.conf
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/contrib/subscriptions.txt $(1)/etc/i2pd
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/contrib/tunnels.conf $(1)/etc/i2pd
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/contrib/tunnels.conf $(1)/etc/i2pd
+	$(INSTALL_DIR) $(1)/etc/i2pd/tunnels.d
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/contrib/tunnels.d/*.conf  $(1)/etc/i2pd/tunnels.d
+	# subscriptions.txt deprecated, see #8088
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/i2pd.init $(1)/etc/init.d/i2pd
 endef

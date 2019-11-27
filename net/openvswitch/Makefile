@@ -1,7 +1,7 @@
 #
 # Copyright (C) 2013 Julius Schulz-Zander <julius@net.t-labs.tu-berlin.de>
 # Copyright (C) 2014-2017 OpenWrt.org
-# Copyright (C) 2018 Yousong Zhou <yszhou4tech@gmail.com>
+# Copyright (C) 2018-2019 Yousong Zhou <yszhou4tech@gmail.com>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -15,16 +15,17 @@ include $(INCLUDE_DIR)/kernel.mk
 #  - Check and update kmod dependencies when necessary (runtime module load check in the least)
 #
 PKG_NAME:=openvswitch
-PKG_VERSION:=2.10.1
-PKG_RELEASE:=1
+PKG_VERSION:=2.12.0
+PKG_RELEASE:=2
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.openvswitch.org/releases/
-PKG_HASH:=4f93c764295952848a924271250d7c6a6a53747d0019ef6ff880aa8ea6897c80
+PKG_HASH:=13fd42703180b4b1146c7e97926d09225485868cc2fbbd58dc0c421b4b8fe8f8
 
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
+PKG_CPE_ID:=cpe:/a:openvswitch:openvswitch
 
-PKG_BUILD_DEPENDS:=python/host python-six/host
+PKG_BUILD_DEPENDS+=python3/host python-six/host
 PKG_USE_MIPS16:=0
 PKG_BUILD_PARALLEL:=1
 PKG_FIXUP:=autoreconf
@@ -33,13 +34,14 @@ PKG_INSTALL:=1
 PKG_MAINTAINER:=Yousong Zhou <yszhou4tech@gmail.com>
 
 include $(INCLUDE_DIR)/package.mk
-include ../../lang/python/python-host.mk
+include ../../lang/python/python3-host.mk
 include ../../lang/python/python-package.mk
+include ../../lang/python/python3-package.mk
 
 
 ovs_kmod_packages:=
 ovs_kmod_intree_kernel_patchver_min:=3.10
-ovs_kmod_intree_kernel_patchver_max:=4.15
+ovs_kmod_intree_kernel_patchver_max:=5.0
 ovs_kmod_intree_not_supported:=$(strip $(call kernel_patchver_lt,$(ovs_kmod_intree_kernel_patchver_min))$(call kernel_patchver_gt,$(ovs_kmod_intree_kernel_patchver_max)))
 ovs_kmod_intree_dir:=$(PKG_BUILD_DIR)/datapath/linux
 ovs_kmod_upstream_dir:=$(LINUX_DIR)/net/openvswitch
@@ -48,12 +50,13 @@ ovs_kmod_is_intree=$(filter %-intree,$(1))
 ovs_kmod_upstream_name=kmod-$(call ovs_kmod_package_name,$(patsubst %-intree,%,$(1)))
 ovs_kmod_package_provides=$(call ovs_kmod_upstream_name,$(1))
 define OvsKmodPackageTemplate
+ifeq ($(if $(call ovs_kmod_is_intree,$(1)),$(ovs_kmod_intree_not_supported)),)
   define KernelPackage/$(call ovs_kmod_package_name,$(1))
      SECTION:=kernel
      CATEGORY:=Kernel modules
      SUBMENU:=Network Support
      TITLE:=$(ovs_kmod_$(1)_title)
-     DEPENDS:=$(ovs_kmod_$(1)_depends) $(if $(call ovs_kmod_is_intree,$(1)),@DEVEL $(if $(ovs_kmod_intree_not_supported),@BROKEN))
+     DEPENDS:=$(ovs_kmod_$(1)_depends) $(if $(call ovs_kmod_is_intree,$(1)),@DEVEL)
      PROVIDES:=$(call ovs_kmod_package_provides,$(1))
      KCONFIG:=$(ovs_kmod_$(1)_kconfig)
      FILES:=$(ovs_kmod_$(1)_files)
@@ -61,14 +64,20 @@ define OvsKmodPackageTemplate
   endef
 
   ovs_kmod_packages+=$(call ovs_kmod_package_name,$(1))
+endif
 endef
 
 ovs_kmod_openvswitch_title:=Open vSwitch kernel datapath (upstream)
 ovs_kmod_openvswitch_kconfig:=CONFIG_OPENVSWITCH
 ovs_kmod_openvswitch_depends:=\
-	  +kmod-lib-crc32c +kmod-mpls \
-	  +kmod-nf-nat +IPV6:kmod-nf-nat6 \
-	  +kmod-nf-conntrack +IPV6:kmod-nf-conntrack6
+	  +kmod-lib-crc32c \
+	  +kmod-nf-nat \
+	  +IPV6:kmod-nf-nat6 \
+	  +kmod-nf-conntrack \
+	  +IPV6:kmod-nf-conntrack6 \
+	  +(!LINUX_4_9&&!LINUX_4_14):kmod-nsh \
+	  +(!LINUX_4_9&&!LINUX_4_14):kmod-ipt-conntrack-extra \
+
 ovs_kmod_openvswitch_files:=$(ovs_kmod_upstream_dir)/openvswitch.ko
 $(eval $(call OvsKmodPackageTemplate,openvswitch))
 
@@ -103,8 +112,20 @@ $(eval $(call OvsKmodPackageTemplate,openvswitch-geneve))
 #    will be pulled in by kmod-gre6.  NOTE that tunnel6.ko itself cannot be
 #    enabled and selected on its own
 #
+#  - kmod-ipt-conntrack-extra: required for nf_conncount.ko
+#
 ovs_kmod_openvswitch-intree_title:=Open vSwitch kernel datapath (in tree)
-ovs_kmod_openvswitch-intree_depends:=$(ovs_kmod_openvswitch_depends) +kmod-gre +IPV6:kmod-gre6
+ovs_kmod_openvswitch-intree_depends:=\
+	  +kmod-lib-crc32c \
+	  +kmod-nf-nat \
+	  +IPV6:kmod-nf-nat6 \
+	  +kmod-nf-conntrack \
+	  +(IPV6&&(LINUX_4_9||LINUX_4_14)):kmod-nf-conntrack6 \
+	  +(LINUX_4_9||LINUX_4_14):kmod-gre \
+	  +(IPV6&&(LINUX_4_9||LINUX_4_14)):kmod-gre6 \
+	  +(!LINUX_4_9&&!LINUX_4_14):kmod-udptunnel4 \
+	  +(!LINUX_4_9&&!LINUX_4_14):kmod-ipt-conntrack-extra \
+
 ovs_kmod_openvswitch-intree_files:= $(ovs_kmod_intree_dir)/openvswitch.ko
 $(eval $(call OvsKmodPackageTemplate,openvswitch-intree))
 
@@ -144,7 +165,7 @@ define OvsPackageTemplate
      URL:=https://www.openvswitch.org
      TITLE:=$(ovs_$(1)_title)
      HIDDEN:=$(ovs_$(1)_hidden)
-     DEPENDS:=$(ovs_$(1)_depends) +libunbound
+     DEPENDS:=$(ovs_$(1)_depends) +libatomic +libunbound
   endef
 
   define Package/$(call ovs_package_name,$(1))/install
@@ -283,6 +304,16 @@ endef
 $(eval $(call OvsPackageTemplate,python))
 
 
+ovs_python3_title:=Open vSwitch (Python3 library)
+ovs_python3_hidden:=
+ovs_python3_depends:=+PACKAGE_openvswitch-python3:python3 +PACKAGE_openvswitch-python3:python3-six
+define ovs_python3_install
+	$$(INSTALL_DIR) $$(1)$$(PYTHON3_PKG_DIR)
+	$$(CP) $$(PKG_INSTALL_DIR)/usr/share/openvswitch/python/ovs $$(1)$$(PYTHON3_PKG_DIR)
+endef
+$(eval $(call OvsPackageTemplate,python3))
+
+
 CONFIGURE_ARGS+= \
 	--enable-ndebug \
 	--enable-shared \
@@ -290,21 +321,25 @@ CONFIGURE_ARGS+= \
 
 CONFIGURE_VARS += \
 	ovs_cv_flake8=no \
-	ovs_cv_python3=no \
+	ovs_cv_python=$(PYTHON3) \
+	ovs_cv_python_host=$(HOST_PYTHON3_BIN) \
 	ovs_cv_sphinx=no \
-	ovs_cv_python=$(PYTHON) \
-	ovs_cv_python_host=$(HOST_PYTHON_BIN) \
+	ovs_cv_python2=no \
 	KARCH=$(LINUX_KARCH) \
 
 ovs_intree_kmod_configs:=CONFIG_PACKAGE_kmod-openvswitch-intree
 ovs_intree_kmod_enabled:=$(strip $(foreach c,$(ovs_intree_kmod_configs),$($(c))))
 PKG_CONFIG_DEPENDS+=$(ovs_intree_kmod_configs)
 ifneq ($(ovs_intree_kmod_enabled),)
-  CONFIGURE_ARGS += --with-linux=$(LINUX_DIR)
+  ifeq ($(ovs_kmod_intree_not_supported),)
+    CONFIGURE_ARGS += --with-linux=$(LINUX_DIR)
+  else
+    $(warning XXX: openvswitch: intree kmods selected but not supported)
+  endif
 endif
 
 TARGET_CFLAGS += -flto -std=gnu99
-MAKE_VARS += PYTHONPATH="$(HOST_PYTHONPATH)"
+MAKE_VARS += PYTHONPATH="$(HOST_PYTHON3PATH)"
 
 $(foreach p,$(ovs_kmod_packages),\
   $(eval $(call KernelPackage,$(p)))\

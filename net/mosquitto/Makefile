@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mosquitto
-PKG_VERSION:=1.5.7
+PKG_VERSION:=1.6.7
 PKG_RELEASE:=1
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE.txt
@@ -17,8 +17,7 @@ PKG_CPE_ID:=cpe:/a:eclipse:mosquitto
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://mosquitto.org/files/source/
-PKG_HASH:=d4024c3388502d50be4192991e90d66dfb344376104df3f63846c9f201779955
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_HASH:=bcd31a8fbbd053fee328986fadd8666d3058357ded56b9782f7d4f19931d178e
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -28,7 +27,7 @@ define Package/mosquitto/default
   TITLE:=mosquitto - an MQTT message broker
   URL:=http://www.mosquitto.org/
   MAINTAINER:=Karl Palsson <karlp@etactica.com>
-  DEPENDS:= +librt +libuuid
+  DEPENDS:= +librt
   USERID:=mosquitto=200:mosquitto=200
 endef
 

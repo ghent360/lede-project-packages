@@ -6,12 +6,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=v4l-utils
-PKG_VERSION:=1.16.3
+PKG_VERSION:=1.16.6
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://www.linuxtv.org/downloads/v4l-utils
-PKG_HASH:=7c5c0d49c130cf65d384f28e9f3a53c5f7d17bf18740c48c40810e0fbbed5b54
+PKG_HASH:=f9dac1878e3d5636eab7f56bb209fdfc66b94ee8a2aae54dcb4282fe63a678ae
 
 PKG_MAINTAINER:=Ted Hess <thess@kitschensync.net>
 PKG_LICENSE:=GPL-2.0 LGPL-2.1
@@ -29,7 +29,7 @@ include $(INCLUDE_DIR)/nls.mk
 
 define Package/libv4l/Default
   TITLE:=Video 4 Linux
-  URL:=http://www.linuxtv.org/
+  URL:=https://www.linuxtv.org/
 endef
 
 define Package/libv4l/Default/description
@@ -64,7 +64,7 @@ define Package/v4l-utils
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE+= utilities
-  DEPENDS := +libv4l $(CXX_DEPENDS) $(ICONV_DEPENDS)
+  DEPENDS := +libv4l $(CXX_DEPENDS) $(ICONV_DEPENDS) $(INTL_DEPENDS)
 endef
 
 define Package/v4l-utils/description
@@ -76,6 +76,7 @@ TARGET_CFLAGS += -flto
 TARGET_LDFLAGS += -largp -Wl,--gc-sections
 
 CONFIGURE_ARGS+= \
+	--disable-bpf \
 	--disable-doxygen-doc \
 	--disable-libdvbv5 \
 	--disable-qv4l2 \

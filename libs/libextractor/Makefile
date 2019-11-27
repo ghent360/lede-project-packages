@@ -6,17 +6,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libextractor
-PKG_VERSION:=1.8
-PKG_RELEASE:=1
+PKG_VERSION:=1.9
+PKG_RELEASE:=2
 
 # ToDo:
 # - package missing optional dependencies: libexiv2, gsf, librpm, smf, tidy
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@GNU/$(PKG_NAME)
-PKG_HASH:=e235a4aa2623fe458f8fcf1dcbb5be4f03df509aacec86a1de1fc7fcca582cfc
+PKG_HASH:=f08f257d26c5e9b503f068d6753c8e55cb76f47f73a81da6ed2bba3de3fee2ff
 
-PKG_LICENSE:=GPL-3.0
+PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 

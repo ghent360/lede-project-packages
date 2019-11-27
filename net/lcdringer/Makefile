@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lcdringer
 PKG_VERSION:=0.0.3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
 
@@ -19,10 +19,11 @@ PKG_LICENSE_FILES:=COPYING
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.flyn.org/projects/lcdringer
 PKG_HASH:=72f34473a62f997516e0a73827b4400150966e1d1d98ece4d7b92075e26913e0
-PKG_BUILD_DEPENDS:=vala
+PKG_BUILD_DEPENDS:=vala/host
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
+PKG_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk

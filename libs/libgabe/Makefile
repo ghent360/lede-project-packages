@@ -1,23 +1,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libgabe
-PKG_VERSION:=0.99
+PKG_VERSION:=1.0
 PKG_RELEASE:=1
 
-PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/schanzen/libgabe/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=2a8c151a90c9ad8eaad073c8ad1482d66875e3433b0b4fd1e08424c0fc89e877
 
+PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=COPYING
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_URL:=https://github.com/schanzen/libgabe.git
-PKG_SOURCE_VERSION:=f72c594eaed35d5a506e8f6c091200a73e17e702
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.xz
-PKG_MIRROR_HASH:=cc5527f7976d904d6c50f40612c5b3d0617342cfc8cf856434a305cfb42e27ff
-
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -39,11 +36,12 @@ define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
 	$(INSTALL_DIR) $(1)/usr/lib/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
 endef
 
 define Package/libgabe/install
-# static library only
+	$(INSTALL_DIR) $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,libgabe))

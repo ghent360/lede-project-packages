@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018 The Regents of the University of California
+# Copyright (C) 2019 The Regents of the University of California
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -8,18 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spoofer
-PKG_VERSION:=1.4.1
-PKG_RELEASE:=2
+PKG_VERSION:=1.4.5
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.caida.org/projects/spoofer/downloads
-PKG_HASH:=e6d9e954709a15dc55187a962e8698d880f3df3ce8b914097c576a3a1f852d0d
+PKG_HASH:=5f045be7269d93efb1ee7918e923e7695c9a36d192c3ada932bb6ae7fba8d15e
 
-PKG_LICENSE:=GPL-3.0
+PKG_MAINTAINER:=Ken Keys <spoofer-info@caida.org>
+PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=LICENSE
 
 PKG_USE_MIPS16:=0
-HOST_BUILD_DEPENDS:=protobuf/host
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
@@ -31,7 +31,6 @@ define Package/spoofer
   CATEGORY:=Network
   TITLE:=Measure your ISP's resistance to spoofed IP packets
   URL:=https://spoofer.caida.org/
-  MAINTAINER:=Ken Keys <spoofer-info@caida.org>
   DEPENDS:=+protobuf-lite +libpcap +libpthread +libopenssl
 endef
 

@@ -8,17 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lm-sensors
-PKG_VERSION:=3.5.0
-PKG_RELEASE:=2
+PKG_VERSION:=3.6.0
+PKG_RELEASE:=1
 
 PKG_VERSION_SUBST=$(subst .,-,$(PKG_VERSION))
 PKG_SOURCE_URL:=https://codeload.github.com/lm-sensors/lm-sensors/tar.gz/V$(PKG_VERSION_SUBST)?
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_HASH:=f671c1d63a4cd8581b3a4a775fd7864a740b15ad046fe92038bcff5c5134d7e0
+PKG_HASH:=0591f9fa0339f0d15e75326d0365871c2d4e2ed8aa1ff759b3a55d3734b7d197
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION_SUBST)
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
-PKG_LICENSE:=GPL-2.0+ LGPL-2.1+
+PKG_LICENSE:=GPL-2.0-or-later LGPL-2.1-or-later
+PKG_CPE_ID:=cpe:/a:lm_sensors:lm_sensors
 
 PKG_BUILD_PARALLEL:=1
 
@@ -42,7 +43,12 @@ define Package/lm-sensors-detect
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=lm-sensors-detect
-  DEPENDS+=+lm-sensors +perl +perlbase-essential +perlbase-fcntl +perlbase-file +perlbase-xsloader
+  DEPENDS+=+lm-sensors \
+	+PACKAGE_lm-sensors-detect:perl \
+	+PACKAGE_lm-sensors-detect:perlbase-essential \
+	+PACKAGE_lm-sensors-detect:perlbase-fcntl \
+	+PACKAGE_lm-sensors-detect:perlbase-file \
+	+PACKAGE_lm-sensors-detect:perlbase-xsloader
 endef
 
 define Package/libsensors
@@ -114,7 +120,7 @@ endef
 
 define Package/libsensors/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/lib/libsensors.so* $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/lib/libsensors.so* $(1)/usr/lib
 endef
 
 $(eval $(call BuildPackage,lm-sensors))

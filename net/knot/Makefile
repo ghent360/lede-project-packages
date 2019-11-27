@@ -8,17 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=knot
-PKG_VERSION:=2.7.6
+PKG_VERSION:=2.9.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://secure.nic.cz/files/knot-dns/
-PKG_HASH:=a1cb1877f04f7c2549c977c2658cfafd07c7e0e924f8e8aa8d4ae4b707f697a2
+PKG_HASH:=f19121956caa360c387923654f13e4c97b3fb9093d242e110d7e0916b8d8a04d
 
 PKG_MAINTAINER:=Daniel Salzman <daniel.salzman@nic.cz>
 PKG_LICENSE:=GPL-3.0 LGPL-2.0 0BSD BSD-3-Clause OLDAP-2.8
+PKG_CPE_ID:=cpe:/a:knot-dns:knot_dns
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
@@ -44,7 +44,7 @@ endef
 define Package/knot-libs
 	$(call Package/knot-lib/Default)
 	TITLE+= common DNS and DNSSEC libraries
-	DEPENDS+=+libgnutls
+	DEPENDS+=+libgnutls +lmdb
 endef
 
 define Package/knot-libzscanner
@@ -144,6 +144,8 @@ define Package/knot-tests/description
 	Usage: /usr/share/knot/runtests.sh
 endef
 
+export KNOT_VERSION_FORMAT=release
+
 CONFIGURE_ARGS += 			\
 	--enable-recvmmsg=no		\
 	--disable-fastparser		\
@@ -234,9 +236,9 @@ define Package/knot-tests/install
 	$(INSTALL_DIR) 						$(1)/usr/share/knot
 	$(INSTALL_BIN) ./files/runtests.sh			$(1)/usr/share/knot/
 
-	$(INSTALL_DIR) 						$(1)/usr/share/knot/tap
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tests/tap/runtests	$(1)/usr/share/knot/tap/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tests/tap/libtap.sh	$(1)/usr/share/knot/tap/
+	$(INSTALL_DIR) 							$(1)/usr/share/knot/tap
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tests/tap/.libs/runtests	$(1)/usr/share/knot/tap/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tests/tap/libtap.sh		$(1)/usr/share/knot/tap/
 
 	$(INSTALL_DIR)								$(1)/usr/share/knot/tests
 
@@ -249,7 +251,7 @@ define Package/knot-tests/install
 		find $(PKG_BUILD_DIR)/tests/$$$${module}/.libs -maxdepth 1 -executable -type f | \
 			xargs -I{} basename {} | \
 			xargs -I{} $(INSTALL_BIN) -T $(PKG_BUILD_DIR)/tests/$$$${module}/.libs/{} \
-											$(1)/usr/share/knot/tests/$$$${module}_{}; \
+										$(1)/usr/share/knot/tests/$$$${module}_{}; \
 	done
 endef
 

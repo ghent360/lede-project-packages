@@ -1,13 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ariang
+PKG_VERSION:=1.1.1
 PKG_RELEASE:=1
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/mayswind/AriaNg-DailyBuild
-PKG_MIRROR_HASH:=9d1dff6762d61a8a1f26c32d7933248a613c2597de7006d3bdae7e18a86e1d20
-PKG_SOURCE_DATE:=2018-11-21
-PKG_SOURCE_VERSION:=f40f5a7880ba0cb84d3ea93a667287d38eaec93b
+PKG_SOURCE_URL:=https://codeload.github.com/mayswind/AriaNg-DailyBuild/tar.gz/$(PKG_VERSION)?
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_HASH:=48f3f737a6a79ab140f6bc75b0b6fd377ccbb75c7b7260b38ad4e64dee97d9e8
+PKG_BUILD_DIR:=$(BUILD_DIR)/AriaNg-DailyBuild-$(PKG_VERSION)
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
@@ -21,7 +21,7 @@ define Package/ariang/default
   SUBMENU:=Download Manager
   DEPENDS:=+aria2
   TITLE:=AriaNg webui
-  URL:=https://github.com/mayswind/AriaNg
+  URL:=https://ariang.mayswind.net
   PKGARCH:=all
 endef
 

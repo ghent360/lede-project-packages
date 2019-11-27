@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libcap
-PKG_VERSION:=2.26
-PKG_RELEASE:=1
+PKG_VERSION:=2.27
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/linux/libs/security/linux-privs/libcap2
-PKG_HASH:=b630b7c484271b3ba867680d6a14b10a86cfa67247a14631b14c06731d5a458b
+PKG_HASH:=dac1792d0118bee6aae6ba7fb93ff1602c6a9bda812fd63916eee1435b9c486a
 
 PKG_MAINTAINER:=Paul Wassi <p.wassi@gmx.at>
 PKG_LICENSE:=GPL-2.0
@@ -24,29 +24,41 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-define Package/libcap
+define Package/libcap/Default
   TITLE:=Linux capabilities library
   SECTION:=libs
   CATEGORY:=Libraries
   URL:=https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/
 endef
 
-define Package/libcap/config
-  if PACKAGE_libcap
+define Package/libcap/description/Default
+  Linux capabilities
+endef
 
-  config PACKAGE_libcap-bin
-    bool "install libcap executables"
-    help
-      Install capsh, getcap, getpcaps, setcap into the target image.
-    default n
+define Package/libcap
+  $(call Package/libcap/Default)
+  TITLE += library
+endef
 
+define Package/libcap-bin
+  $(call Package/libcap/Default)
+  TITLE += binaries
+  DEPENDS += libcap
+endef
+
+define Package/libcap-bin/description
+  $(call Package/libcap/description/Default)
+  .
+  This package contains the libcap utilities.
+endef
+
+define Package/libcap-bin/config
+  if PACKAGE_libcap-bin
   config PACKAGE_libcap-bin-capsh-shell
     string "capsh shell"
-    depends on PACKAGE_libcap-bin
     help
       Set the capsh shell.
     default "/bin/sh"
-
   endif
 endef
 
@@ -69,20 +81,27 @@ endif
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/sys
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
-	$(INSTALL_DIR) $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/lib/* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(SED) 's,exec_prefix=,exec_prefix=/usr,g' $(1)/usr/lib/pkgconfig/libcap.pc
+	$(SED) 's,/lib,$$$${exec_prefix}/lib,g' $(1)/usr/lib/pkgconfig/libcap.pc
+	$(SED) 's,/usr/include,$$$${prefix}/include,g' $(1)/usr/lib/pkgconfig/libcap.pc
 endef
 
 define Package/libcap/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/lib/libcap.so* $(1)/usr/lib/
-ifneq ($(CONFIG_PACKAGE_libcap-bin),)
+endef
+
+define Package/libcap-bin/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_INSTALL_DIR)/sbin/capsh     $(1)/usr/sbin/
 	$(CP) $(PKG_INSTALL_DIR)/sbin/getcap    $(1)/usr/sbin/
 	$(CP) $(PKG_INSTALL_DIR)/sbin/getpcaps  $(1)/usr/sbin/
 	$(CP) $(PKG_INSTALL_DIR)/sbin/setcap    $(1)/usr/sbin/
-endif
 endef
 
 $(eval $(call BuildPackage,libcap))
+$(eval $(call BuildPackage,libcap-bin))

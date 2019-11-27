@@ -8,15 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=p11-kit
-PKG_VERSION:=0.23.15
+PKG_VERSION:=0.23.18.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_HASH:=f7c139a0c77a1f0012619003e542060ba8f94799a0ef463026db390680e4d798
 PKG_SOURCE_URL:=https://github.com/p11-glue/p11-kit/releases/download/$(PKG_VERSION)
+PKG_HASH:=34c3bd8c0050dd7c4e6228aecf0f168de0a1b34562ddbf74a1c70904c2523c6f
 
 PKG_MAINTAINER:=Nikos Mavrogiannopoulos <n.mavrogiannopoulos@gmail.com>
-PKG_LICENSE:=BSD-3c
+PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=COPYING
 
 PKG_BUILD_PARALLEL:=1
@@ -38,12 +38,14 @@ define Package/p11-kit/description
   way that they are discoverable.
 endef
 
-TARGET_LDFLAGS += -Wl,--gc-sections
+TARGET_LDFLAGS += -Wl,--gc-sections,--as-needed
 
 CONFIGURE_ARGS+= \
 	--disable-debug \
+	--disable-rpath \
 	--disable-trust-module \
-	--without-libffi
+	--without-libffi \
+	--without-systemd
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/p11-kit-1/p11-kit/

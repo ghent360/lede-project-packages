@@ -8,25 +8,24 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-twisted
-PKG_VERSION:=18.9.0
-PKG_RELEASE:=4
+PKG_VERSION:=19.10.0
+PKG_RELEASE:=1
 
-PKG_SOURCE:=Twisted-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=https://files.pythonhosted.org/packages/source/T/Twisted
-PKG_HASH:=294be2c6bf84ae776df2fc98e7af7d6537e1c5e60a46d33c3ce2a197677da395
+PYPI_NAME:=Twisted
+PYPI_SOURCE_EXT:=tar.bz2
+PKG_HASH:=7394ba7f272ae722a74f3d969dcf599bc4ef093bc392038748a490f1724a515d
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(BUILD_VARIANT)-twisted-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libtirpc
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>
+PKG_CPE_ID:=cpe:/a:twistedmatrix:twisted
 
+include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
 include ../python-package.mk
 include ../python3-package.mk
-
-PKG_UNPACK:=$(HOST_TAR) -C $(PKG_BUILD_DIR) --strip-components=1 -xjf $(DL_DIR)/$(PKG_SOURCE)
 
 define Package/python-twisted/Default
   SECTION:=lang

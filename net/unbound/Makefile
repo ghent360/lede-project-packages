@@ -8,16 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=unbound
-PKG_VERSION:=1.9.0
+PKG_VERSION:=1.9.5
 PKG_RELEASE:=1
 
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://nlnetlabs.nl/downloads/unbound
+PKG_HASH:=8a8d400f697c61d73d109c250743a1b6b79848297848026d82b43e831045db57
+
+PKG_MAINTAINER:=Eric Luehrsen <ericluehrsen@gmail.com>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=Eric Luehrsen <ericluehrsen@gmail.com>
-
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://www.unbound.net/downloads
-PKG_HASH:=415af94b8392bc6b2c52e44ac8f17935cc6ddf2cc81edfb47c5be4ad205ab917
+PKG_CPE_ID:=cpe:/a:nlnetlabs:unbound
 
 PKG_BUILD_PARALLEL:=1
 PKG_FIXUP:=autoreconf
@@ -26,45 +27,97 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/unbound/Default
-  TITLE:=Validating Recursive DNS Server
-  URL:=http://www.unbound.net/
-  DEPENDS:=+libopenssl
-endef
-
-define Package/unbound
-  $(call Package/unbound/Default)
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=IP Addresses and Names
   USERID:=unbound:unbound
-  TITLE+= (daemon)
-  DEPENDS+= +libunbound
+  TITLE:=Recursive DNS Server
+  URL:=https://nlnetlabs.nl/projects/unbound/about
+  DEPENDS:=+libopenssl +@OPENSSL_WITH_EC
 endef
 
-define Package/unbound/description
-  This package contains the Unbound daemon.
+define Package/unbound-daemon
+  $(call Package/unbound/Default)
+  TITLE+= (daemon, light traffic)
+  DEPENDS+= +libunbound
+  VARIANT:=light
+endef
+
+define Package/unbound-daemon/description
+  This package contains the Unbound daemon with basic includes
+  necessary to meet the needs of UCI/LuCI configuration optoins.
+endef
+
+define Package/unbound-daemon-heavy
+  $(call Package/unbound/Default)
+  TITLE+= (daemon, heavy traffic)
+  URL:=https://nlnetlabs.nl/documentation/unbound/howto-optimise
+  DEPENDS+= +libunbound-heavy +libpthread +libevent2 +libevent2-pthreads
+  VARIANT:=heavy
+  PROVIDES:=unbound-daemon
+endef
+
+define Package/unbound-daemon-heavy/description
+  This package contains the Unbound daemon including 'libevent' and
+  'libpthread' to better handle large networks with heavy query loads.
+endef
+
+define Package/libunbound
+  $(call Package/unbound/Default)
+  SECTION:=libs
+  CATEGORY:=Libraries
+  SUBMENU:=Networking
+  TITLE+= (library, light traffic)
+  VARIANT:=light
+  DEFAULT_VARIANT:=1
+endef
+
+define Package/libunbound/description
+  This package contains the Unbound shared library with basic includes
+  necessary to meet the needs of UCI/LuCI configuration optoins.
+endef
+
+define Package/libunbound-heavy
+  $(call Package/unbound/Default)
+  SECTION:=libs
+  CATEGORY:=Libraries
+  SUBMENU:=Networking
+  TITLE+= (library, heavy traffic)
+  URL:=https://nlnetlabs.nl/documentation/unbound/howto-optimise
+  DEPENDS+= +libpthread +libevent2 +libevent2-pthreads
+  VARIANT:=heavy
+  PROVIDES:=libunbound
+endef
+
+define Package/libunbound-heavy/description
+  This package contains the Unbound shared library including 'libevent' and
+  'libpthread' to better handle large networks with heavy query loads.
 endef
 
 define Package/unbound-anchor
   $(call Package/unbound/Default)
-  SECTION:=net
-  CATEGORY:=Network
-  SUBMENU:=IP Addresses and Names
-  TITLE+= (DSKEY utility)
-  DEPENDS+= +unbound +libexpat
+  TITLE+= (root DSKEY)
+  DEPENDS+= +unbound-daemon +libexpat
 endef
 
 define Package/unbound-anchor/description
   This package contains the Unbound anchor utility.
 endef
 
+define Package/unbound-checkconf
+  $(call Package/unbound/Default)
+  TITLE+= (config checker)
+  DEPENDS+= +unbound-daemon
+endef
+
+define Package/unbound-checkconf/description
+  This package contains the Unbound DNS configuration checker utility.
+endef
+
 define Package/unbound-control
   $(call Package/unbound/Default)
-  SECTION:=net
-  CATEGORY:=Network
-  SUBMENU:=IP Addresses and Names
-  TITLE+= (control utility)
-  DEPENDS+= +unbound
+  TITLE+= (remote control)
+  DEPENDS+= +unbound-daemon
 endef
 
 define Package/unbound-control/description
@@ -73,9 +126,6 @@ endef
 
 define Package/unbound-control-setup
   $(call Package/unbound/Default)
-  SECTION:=net
-  CATEGORY:=Network
-  SUBMENU:=IP Addresses and Names
   TITLE+= (control setup)
   DEPENDS+= +unbound-control +openssl-util
 endef
@@ -86,10 +136,7 @@ endef
 
 define Package/unbound-host
   $(call Package/unbound/Default)
-  SECTION:=net
-  CATEGORY:=Network
-  SUBMENU:=IP Addresses and Names
-  TITLE+= (lookup utility)
+  TITLE+= (DNS lookup)
   DEPENDS+= +libunbound
 endef
 
@@ -97,22 +144,11 @@ define Package/unbound-host/description
   This package contains the Unbound DNS lookup utility.
 endef
 
-define Package/libunbound
-  $(call Package/unbound/Default)
-  SECTION:=libs
-  CATEGORY:=Libraries
-  TITLE+= (library)
-  DEPENDS+= +libpthread
-endef
-
-define Package/libunbound/description
-  This package contains the Unbound shared library.
-endef
-
 CONFIGURE_ARGS += \
 	--disable-dsa \
 	--disable-gost \
 	--enable-allsymbols \
+	--enable-ecdsa \
 	--enable-tfo-client \
 	--enable-tfo-server \
 	--with-libexpat="$(STAGING_DIR)/usr" \
@@ -122,26 +158,41 @@ CONFIGURE_ARGS += \
 	--with-conf-file=/var/lib/unbound/unbound.conf \
 	--with-pidfile=/var/run/unbound.pid
 
-define Package/unbound/conffiles
+ifeq ($(BUILD_VARIANT),heavy)
+	CONFIGURE_ARGS += \
+		--with-pthreads \
+		--with-libevent="$(STAGING_DIR)/usr" \
+		--enable-event-api
+else
+    CONFIGURE_ARGS += \
+		--without-pthreads \
+		--without-solaris-threads \
+		--without-libevent
+endif
+
+define Package/unbound-daemon/conffiles
 /etc/config/unbound
 /etc/unbound/unbound.conf
 /etc/unbound/unbound_ext.conf
 /etc/unbound/unbound_srv.conf
 endef
 
+Package/unbound-daemon-heavy/conffiles = $(Package/unbound-daemon/conffiles)
+
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/unbound.h $(1)/usr/include/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libunbound.{so*,a,la} $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/unbound.h $(1)/usr/include/
+ifeq ($(BUILD_VARIANT),heavy)
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/unbound-event.h $(1)/usr/include/
+endif
 endef
 
-define Package/unbound/install
+define Package/unbound-daemon/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) \
-		$(PKG_INSTALL_DIR)/usr/sbin/unbound \
-		$(PKG_INSTALL_DIR)/usr/sbin/unbound-checkconf \
-		$(1)/usr/sbin/
+		$(PKG_INSTALL_DIR)/usr/sbin/unbound $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/etc/unbound
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)/var/lib/unbound/unbound.conf \
@@ -165,9 +216,23 @@ define Package/unbound/install
 	$(INSTALL_DATA) ./files/unbound.sh $(1)/usr/lib/unbound/unbound.sh
 endef
 
+Package/unbound-daemon-heavy/install = $(Package/unbound-daemon/install)
+
+define Package/libunbound/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libunbound.so.* $(1)/usr/lib/
+endef
+
+Package/libunbound-heavy/install = $(Package/libunbound/install)
+
 define Package/unbound-anchor/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/unbound-anchor $(1)/usr/sbin/
+endef
+
+define Package/unbound-checkconf/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/unbound-checkconf $(1)/usr/sbin/
 endef
 
 define Package/unbound-control/install
@@ -185,15 +250,13 @@ define Package/unbound-host/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/unbound-host $(1)/usr/sbin/
 endef
 
-define Package/libunbound/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libunbound.so.* $(1)/usr/lib/
-endef
-
-$(eval $(call BuildPackage,unbound))
+$(eval $(call BuildPackage,unbound-daemon))
+$(eval $(call BuildPackage,unbound-daemon-heavy))
+$(eval $(call BuildPackage,libunbound))
+$(eval $(call BuildPackage,libunbound-heavy))
 $(eval $(call BuildPackage,unbound-anchor))
+$(eval $(call BuildPackage,unbound-checkconf))
 $(eval $(call BuildPackage,unbound-control))
 $(eval $(call BuildPackage,unbound-control-setup))
 $(eval $(call BuildPackage,unbound-host))
-$(eval $(call BuildPackage,libunbound))
 

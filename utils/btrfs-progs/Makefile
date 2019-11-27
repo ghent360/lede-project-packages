@@ -6,16 +6,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=btrfs-progs
-PKG_VERSION:=4.20.1
-PKG_RELEASE:=2
+PKG_VERSION:=5.3.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-v$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/linux/kernel/people/kdave/btrfs-progs
-PKG_HASH:=562f5d1ff1d17867c4c2be2768c653b62f1f257c42f9bb3e1a36380c02ec4fcd
+PKG_HASH:=bfa31ae60e54a068fd24e075a90b72f89b8e9006659273fbcecc2e1c790cda38
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-v$(PKG_VERSION)
 
-PKG_MAINTAINER:=Rosen Penev <rosenp@gmail.com>
-PKG_LICENSE:=GPL-2.0
+PKG_MAINTAINER:=Karel Kočí <karel.koci@nic.cz>
+PKG_LICENSE:=GPL-2.0-only
 PKG_LICENSE_FILES:=COPYING
 
 PKG_INSTALL:=1
@@ -28,9 +28,9 @@ define Package/btrfs-progs
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Filesystem
-  DEPENDS:=+libattr +libuuid +zlib +libblkid +liblzo +libpthread
   TITLE:=Btrfs filesystems utilities
   URL:=https://btrfs.wiki.kernel.org/
+  DEPENDS:=+libattr +libuuid +zlib +libblkid +liblzo +libpthread +BTRFS_PROGS_ZSTD:libzstd
 endef
 
 define Package/btrfs-progs/description
@@ -40,8 +40,12 @@ define Package/btrfs-progs/description
  GPL and open for contribution from anyone.
 endef
 
-progs = btrfs btrfs-find-root btrfs-image btrfs-map-logical \
-	btrfs-select-super btrfstune mkfs.btrfs
+define Package/btrfs-progs/config
+	source "$(SOURCE)/Config.in"
+endef
+
+boxprogs = btrfsck mkfs.btrfs btrfs-image btrfstune btrfs-find-root
+progs = btrfs-map-logical btrfs-select-super
 
 TARGET_CFLAGS += -ffunction-sections -fdata-sections
 TARGET_LDFLAGS += -Wl,--gc-sections -Wl,--as-needed
@@ -52,8 +56,14 @@ CONFIGURE_ARGS += \
 	--disable-backtrace \
 	--disable-convert \
 	--disable-documentation \
-	--disable-python \
-	--disable-zstd
+	--disable-python
+ifneq ($(CONFIG_BTRFS_PROGS_ZSTD),y)
+CONFIGURE_ARGS += --disable-zstd
+endif
+
+MAKE_INSTALL_FLAGS += BUILD_PROGRAMS=0
+
+Build/Compile=$(call Build/Compile/Default,btrfs.box $(progs))
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include $(1)/usr/lib
@@ -66,10 +76,11 @@ define Package/btrfs-progs/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbtrfs.so* $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbtrfsutil.so* $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(addprefix $(PKG_INSTALL_DIR)/usr/bin/, $(progs)) $(1)/usr/bin/
-	$(LN) btrfs $(1)/usr/bin/btrfsck
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/btrfs-scan.init $(1)/etc/init.d/btrfs-scan
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/btrfs.box $(1)/usr/bin/btrfs
+	$(foreach prog,$(boxprogs),$(LN) btrfs $(1)/usr/bin/$(prog);)
+	$(foreach prog,$(progs),$(INSTALL_BIN) $(PKG_BUILD_DIR)/$(prog) $(1)/usr/bin/;)
+	$(INSTALL_DIR) $(1)/lib/preinit
+	$(INSTALL_BIN) ./files/btrfs-scan.init $(1)/lib/preinit/85_btrfs_scan
 endef
 
 $(eval $(call BuildPackage,btrfs-progs))

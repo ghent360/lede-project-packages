@@ -1,17 +1,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=syslog-ng
-PKG_VERSION:=3.19.1
-PKG_RELEASE:=2
+PKG_VERSION:=3.24.1
+PKG_RELEASE:=1
 
-PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
-PKG_LICENSE:=LGPL-2.1+
-PKG_LICENSE_FILES:=COPYING
+PKG_MAINTAINER:=Josef Schlehofer <josef.schlehofer@nic.cz>
+PKG_LICENSE:=LGPL-2.1-or-later GPL-2.0-or-later
+PKG_LICENSE_FILES:=COPYING LGPL.txt GPL.txt
 PKG_CPE_ID:=cpe:/a:balabit:syslog-ng
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/balabit/syslog-ng/releases/download/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_HASH:=5cf931a9d7bead0e6d9a2c65eee8f6005a005878f59aa280f3c4294257ed5178
+PKG_HASH:=d4d0a0357b452be96b69d6f741129275530d8f0451e35adc408ad5635059fa3d
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
@@ -25,9 +25,9 @@ include $(INCLUDE_DIR)/nls.mk
 define Package/syslog-ng
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+libpcre +glib2 +libopenssl +libpthread +librt +zlib +libdbi +libjson-c +libcurl +libuuid
   TITLE:=A powerful syslog daemon
   URL:=https://www.syslog-ng.com/products/open-source-log-management/
+  DEPENDS:=+libpcre +glib2 +libopenssl +libpthread +librt +zlib +libdbi +libjson-c +libcurl +libuuid
 endef
 
 define Package/syslog-ng/description
@@ -48,6 +48,7 @@ define Build/Configure
 endef
 
 CONFIGURE_ARGS +=  \
+	--disable-snmp-dest \
 	$(call autoconf_bool,CONFIG_IPV6,ipv6) \
 	--disable-tcp-wrapper \
 	--disable-spoof-source \
@@ -60,6 +61,7 @@ CONFIGURE_ARGS +=  \
 	--disable-redis \
 	--disable-dependency-tracking \
 	--disable-python \
+	--disable-geoip2 \
 	--disable-java \
 	--disable-java-modules \
 	--with-librabbitmq-client=no \

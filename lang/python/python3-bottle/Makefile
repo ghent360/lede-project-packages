@@ -8,18 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python3-bottle
-PKG_VERSION:=0.12.13
+PKG_VERSION:=0.12.17
 PKG_RELEASE:=1
 
+PYPI_NAME:=bottle
+PKG_HASH:=e9eaa412a60cc3d42ceb42f58d15864d9ed1b92e9d630b8130c871c5bb16107c
+
+PKG_MAINTAINER:=Josef Schlehofer <josef.schlehofer@nic.cz>
 PKG_LICENSE:=MIT
-PKG_MAINTAINER:=Luka Perkov <luka@openwrt.org>
+PKG_LICENSE_FILES:=LICENSE
+PKG_CPE_ID:=cpe:/a:bottlepy:bottle
 
-PKG_SOURCE:=bottle-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://files.pythonhosted.org/packages/source/b/bottle
-PKG_HASH:=39b751aee0b167be8dffb63ca81b735bbf1dd0905b3bc42761efedee8f123355
-PKG_BUILD_DIR:=$(BUILD_DIR)/bottle-$(PKG_VERSION)
-PKG_UNPACK=$(HOST_TAR) -C $(PKG_BUILD_DIR) --strip-components=1 -xzf $(DL_DIR)/$(PKG_SOURCE)
-
+include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
 include ../python3-package.mk
 
@@ -27,9 +27,10 @@ define Package/python3-bottle
 	SECTION:=lang
 	CATEGORY:=Languages
 	SUBMENU:=Python
-	TITLE:=Bottle is a fast, simple and lightweight WSGI micro web-framework for Python
+	TITLE:=Fast and simple WSGI-framework for small web-applications
 	URL:=https://bottlepy.org
 	DEPENDS:=+python3
+	VARIANT:=python3
 endef
 
 define Package/python3-bottle/description
@@ -38,15 +39,6 @@ define Package/python3-bottle/description
  Python Standard Library.
 endef
 
-define Build/Configure
-endef
-
-define Build/Compile
-endef
-
-define Package/python3-bottle/install
-	$(INSTALL_DIR) $(1)$(PYTHON3_PKG_DIR)
-	$(CP) $(PKG_BUILD_DIR)/bottle.py $(1)$(PYTHON3_PKG_DIR)
-endef
-
+$(eval $(call Py3Package,python3-bottle))
 $(eval $(call BuildPackage,python3-bottle))
+$(eval $(call BuildPackage,python3-bottle-src))

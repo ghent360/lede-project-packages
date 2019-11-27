@@ -8,36 +8,27 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-cffi
-PKG_VERSION:=1.12.1
+PKG_VERSION:=1.13.2
 PKG_RELEASE:=1
 
-PKG_SOURCE:=cffi-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://files.pythonhosted.org/packages/source/c/cffi
-PKG_HASH:=9b6f7ba4e78c52c1a291d0c0c0bd745d19adde1a9e1c03cb899f0c6efd6f8033
-
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(BUILD_VARIANT)-cffi-$(PKG_VERSION)
+PYPI_NAME:=cffi
+PKG_HASH:=599a1e8ff057ac530c9ad1778293c665cb81a791421f46922d80a86473c13346
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>, Alexandru Ardelean <ardeleanalex@gmail.com>
 
-PKG_BUILD_DEPENDS:=libffi/host
-
-HOST_PYTHON_PACKAGE_BUILD_DEPENDS:="cffi==$(PKG_VERSION)"
-HOST_PYTHON3_PACKAGE_BUILD_DEPENDS:="cffi==$(PKG_VERSION)"
-
+include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
 include ../python-package.mk
 include ../python3-package.mk
-
-PKG_UNPACK:=$(HOST_TAR) -C $(PKG_BUILD_DIR) --strip-components=1 -xzf $(DL_DIR)/$(PKG_SOURCE)
 
 define Package/python-cffi/Default
   SECTION:=lang
   CATEGORY:=Languages
   SUBMENU:=Python
   TITLE:=C Foreign Function Interface
-  URL:=http://cffi.readthedocs.org/
+  URL:=https://cffi.readthedocs.org/
   DEPENDS:=+libffi
 endef
 

@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=netifyd
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Darryl Sokoloski <darryl@egloo.ca>
-PKG_LICENSE:=GPL-3.0+
+PKG_LICENSE:=GPL-3.0-or-later
 
 PKG_BUILD_PARALLEL:=1
 PKG_FIXUP:=autoreconf
@@ -16,10 +16,10 @@ PKG_INSTALL:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://gitlab.com/netify.ai/public/netify-agent.git
-PKG_SOURCE_DATE:=2019-01-03
-PKG_SOURCE_VERSION:=v2.87
-#PKG_SOURCE_VERSION:=e846598bbe26eb6d631f1eda922c7141245f48e3
-PKG_MIRROR_HASH:=05af5b4e48ccfccf60cfb3c0b08c8bb3987d8957f17723520da4488798a7b68d
+PKG_SOURCE_DATE:=2019-10-21
+PKG_SOURCE_VERSION:=v2.93
+#PKG_SOURCE_VERSION:=4585e2b82c6a34633bc54ac526a635e8a95b28f3
+PKG_MIRROR_HASH:=efbfae112bb4d8d8d22e04ce523484a47b154a4cf57b3992aa28073ba64bd59b
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -28,7 +28,7 @@ define Package/netifyd
   CATEGORY:=Network
   TITLE:=Netify Agent
   URL:=http://www.netify.ai/
-  DEPENDS:=+libcurl +libmnl +libnetfilter-conntrack +libjson-c +libpcap +zlib +libpthread
+  DEPENDS:=+ca-bundle +libcurl +libmnl +libnetfilter-conntrack +libjson-c +libpcap +zlib +libpthread @!USE_UCLIBC
   # Explicitly depend on libstdcpp rather than $(CXX_DEPENDS).  At the moment
   # std::unordered_map is only available via libstdcpp which is required for
   # performance reasons.
@@ -54,7 +54,6 @@ TARGET_LDFLAGS+=-Wl,--gc-sections
 CONFIGURE_ARGS+= \
 	--sharedstatedir=/var/run \
 	--enable-lean-and-mean \
-	--disable-ncurses \
 	--disable-libtcmalloc \
 	--without-systemdsystemunitdir \
 	--without-tmpfilesdir
