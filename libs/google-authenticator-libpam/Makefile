@@ -6,20 +6,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=google-authenticator-libpam
-PKG_VERSION:=1.06
+PKG_VERSION:=1.09
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/google/google-authenticator-libpam/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=52f03ec746e8deb1af37911697d096f0fa87583491b7cc460cdf09a6ef0d6b06
+PKG_HASH:=ab1d7983413dc2f11de2efa903e5c326af8cb9ea37765dacb39949417f7cd037
 
 PKG_MAINTAINER:=Lucian Cristian <lucian.cristian@gmail.com>
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_BUILD_PARALLEL:=1
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 

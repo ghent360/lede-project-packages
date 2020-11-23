@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mosh
 PKG_VERSION:=1.3.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://mosh.org/
@@ -19,11 +19,9 @@ PKG_MAINTAINER:=Rosen Penev <rosenp@gmail.com>
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=COPYING
 
-PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_DEPENDS:=protobuf/host
-PKG_USE_MIPS16:=0
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -92,6 +90,9 @@ CONFIGURE_ARGS += \
 	--disable-compile-warnings \
 	--disable-hardening \
 	--without-utempter
+
+CONFIGURE_VARS += \
+	ac_cv_have_decl_ffs=yes
 
 TARGET_CXXFLAGS += -ffunction-sections -fdata-sections -flto -std=c++11
 TARGET_LDFLAGS += -Wl,--gc-sections -lncurses

@@ -73,7 +73,7 @@ proto_bonding_setup() {
 	# Check for loaded kernel bonding driver (/sys/class/net/bonding_masters exists)
 	[ -f "$BONDING_MASTERS" ] || {
 		echo "$cfg" "setup: bonding_masters does not exist in sysfs (kernel module not loaded?)"
-		proto_notify_error "$cfg" "setup: bonding_masters does not exist in sysfs (kernel module not loaded?)"
+		proto_notify_error "$cfg" BONDING_MASTER_DOES_NOT_EXIST
 		proto_block_restart "$cfg"
 		return
 	}
@@ -105,6 +105,15 @@ proto_bonding_setup() {
 		balance-alb)
 			echo "$bonding_policy" > /sys/class/net/"$link"/bonding/mode
 			set_driver_values primary primary_reselect lp_interval tlb_dynamic_lb resend_igmp xmit_hash_policy
+		;;
+
+		balance-xor)
+			echo "$bonding_policy" > /sys/class/net/"$link"/bonding/mode
+			set_driver_values xmit_hash_policy
+		;;
+
+		broadcast)
+			echo "$bonding_policy" > /sys/class/net/"$link"/bonding/mode
 		;;
 
 		active-backup)
@@ -152,8 +161,8 @@ proto_bonding_setup() {
 	for slave in $slaves; do
 
 		if [ "$(cat /proc/net/dev |grep "$slave")" == "" ]; then
-			echo "$cfg" "ERROR IN CONFIGURATION - $slave: No such device"
-			proto_notify_error "$cfg" "ERROR IN CONFIGURATION - $slave: No such device"
+			echo "$cfg" "No slave device $slave found"
+			proto_notify_error "$cfg" NO_DEVICE
 			proto_block_restart "$cfg"
 			return
 		fi
@@ -181,8 +190,8 @@ proto_bonding_setup() {
 
 	# For static configuration we _MUST_ have an IP address
 	[ -z "$ipaddr" ] && {
-		echo "$cfg" "INVALID LOCAL ADDRESS"
-		proto_notify_error "$cfg" "INVALID_LOCAL_ADDRESS"
+		echo "$cfg" "No local IP address defined"
+		proto_notify_error "$cfg" INVALID_LOCAL_ADDRESS
 		proto_block_restart "$cfg"
 		return
 	}
@@ -199,7 +208,7 @@ proto_bonding_teardown() {
 	# Check for loaded kernel bonding driver (/sys/class/net/bonding_masters exists)
 	[ -f "$BONDING_MASTERS" ] || {
 		echo "$cfg" "teardown: bonding_masters does not exist in sysfs (kernel module not loaded?)"
-		proto_notify_error "$cfg" "teardown: bonding_masters does not exist in sysfs (kernel module not loaded?)"
+		proto_notify_error "$cfg" BONDING_MASTER_DOES_NOT_EXIST
 		proto_block_restart "$cfg"
 		return
 	}

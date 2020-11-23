@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-urllib3
-PKG_VERSION:=1.25.6
+PKG_VERSION:=1.25.11
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=Josef Schlehofer <pepe.schlehofer@gmail.com>
@@ -17,46 +17,24 @@ PKG_LICENSE_FILES:=LICENSE.txt
 PKG_CPE_ID:=cpe:/a:urllib3_project:urllib3
 
 PYPI_NAME:=urllib3
-PKG_HASH:=9a107b99a5393caf59c7aa3c1249c16e6879447533d0887f4336dde834c7be86
+PKG_HASH:=8d7eaa5a82a1cac232164990f04874c594c9453ec55eef02eab885aa02fc17a2
 
 include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
-include ../python-package.mk
 include ../python3-package.mk
 
-define Package/python-urllib3/Default
+define Package/python3-urllib3
   SUBMENU:=Python
   SECTION:=lang
   CATEGORY:=Languages
   TITLE:=Sanity-friendly HTTP client
   URL:=https://urllib3.readthedocs.io/
-endef
-
-define Package/python-urllib3
-$(call Package/python-urllib3/Default)
-  DEPENDS:=+PACKAGE_python-urllib3:python
-  VARIANT:=python
-endef
-
-define Package/python-urllib3/description
-  HTTP library with thread-safe connection pooling, file post, and more.
-endef
-
-define Package/python3-urllib3
-$(call Package/python-urllib3/Default)
-  DEPENDS:=+PACKAGE_python3-urllib3:python3
-  VARIANT:=python3
+  DEPENDS:=+python3
 endef
 
 define Package/python3-urllib3/description
-$(call Package/python-urllib3/description)
-.
-(Variant for Python3)
+  HTTP library with thread-safe connection pooling, file post, and more.
 endef
-
-$(eval $(call PyPackage,python-urllib3))
-$(eval $(call BuildPackage,python-urllib3))
-$(eval $(call BuildPackage,python-urllib3-src))
 
 $(eval $(call Py3Package,python3-urllib3))
 $(eval $(call BuildPackage,python3-urllib3))

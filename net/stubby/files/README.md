@@ -24,7 +24,7 @@ Stubby](https://dnsprivacy.org/wiki/display/DP/About+Stubby) page.
 Installation of this package can be achieved at the command line using `opkg
 install stubby`, or via the LUCI Web Interface. Installing the stubby package
 will also install the required dependency packages, including the
-`ca-certificates` package.
+`ca-bundle` package.
 
 ## Configuration
 
@@ -444,7 +444,7 @@ overrides the global value.
 #### `list spki`
 
 This list specifies the SPKI pinset which is verified against the keys in the
-server cerrtificate. The value takes the form `'<digest type>/value>'`, where
+server certificate. The value takes the form `'<digest type>/value>'`, where
 the `digest type` is the hashing algorithm used, and the value is the Base64
 encoded hash of the public key. At present, only `sha256` is
 supported for the digest type.

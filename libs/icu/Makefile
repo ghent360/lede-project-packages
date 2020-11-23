@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=icu4c
-MAJOR_VERSION:=65
+MAJOR_VERSION:=68
 MINOR_VERSION:=1
 PKG_VERSION:=$(MAJOR_VERSION).$(MINOR_VERSION)
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(MAJOR_VERSION)_$(MINOR_VERSION)-src.tgz
 PKG_SOURCE_URL:=https://github.com/unicode-org/icu/releases/download/release-$(MAJOR_VERSION)-$(MINOR_VERSION)
-PKG_HASH:=53e37466b3d6d6d01ead029e3567d873a43a5d1c668ed2278e253b683136d948
+PKG_HASH:=a9f2e3d8b4434b8e53878b4308bd1e6ee51c9c7042e2b1a376abefb6fbb29f2d
 
 PKG_LICENSE:=ICU
 PKG_LICENSE_FILES:=LICENSE
@@ -137,6 +137,8 @@ define Host/Install
 	$(INSTALL_BIN)  $(HOST_BUILD_DIR)/bin/icupkg $(STAGING_DIR_HOSTPKG)/share/icu/$(PKG_VERSION)/bin/
 	$(INSTALL_BIN)  $(HOST_BUILD_DIR)/bin/pkgdata $(STAGING_DIR_HOSTPKG)/share/icu/$(PKG_VERSION)/bin/
 	$(CP)           $(HOST_BUILD_DIR)/lib/*.so* $(STAGING_DIR_HOSTPKG)/share/icu/$(PKG_VERSION)/lib/
+	$(RM)           $(STAGING_DIR_HOSTPKG)/share/icu/current
+	(cd $(STAGING_DIR_HOSTPKG)/share/icu;$(LN) $(PKG_VERSION) current)
 endef
 
 define Package/icu/install

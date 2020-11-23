@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2006-2016 OpenWrt.org
-# Copyright (C) 2017-2019 Luiz Angelo Daros de Luca <luizluca@gmail.com>
+# Copyright (C) 2017-2020 Luiz Angelo Daros de Luca <luizluca@gmail.com>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,17 +9,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sane-backends
-PKG_VERSION:=1.0.28
+PKG_VERSION:=1.0.31
 PKG_RELEASE:=1
+
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://gitlab.com/sane-project/backends/uploads/9e718daff347826f4cfe21126c8d5091/
-PKG_HASH:=31260f3f72d82ac1661c62c5a4468410b89fb2b4a811dabbfcc0350c1346de03
+PKG_SOURCE_URL:=https://gitlab.com/sane-project/backends/uploads/8bf1cae2e1803aefab9e5331550e5d5d/
+PKG_HASH:=4a3b10fcb398ed854777d979498645edfe66fcac2f2fd2b9117a79ff45e2a5aa
+
 PKG_MAINTAINER:=Luiz Angelo Daros de Luca <luizluca@gmail.com>
 PKG_LICENSE:=GPL-2.0 GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING LICENSE
 PKG_CPE_ID:=cpe:/a:sane-backends_project:sane-backends
 
 PKG_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -40,6 +43,7 @@ $(call Package/sane-backends/Default)
   CATEGORY:=Utilities
   TITLE+= (drivers)
   DEPENDS:=+ALL:sane-backends-all
+  BUILDONLY:=1
 endef
 
 define Package/sane-backends/description
@@ -55,7 +59,7 @@ define Package/sane-backends/config
 
     config PACKAGE_sane-backends-all
       depends on PACKAGE_sane-backends
-      prompt "Include all SANE backends (sane-backends-all)"
+      tristate "Include all SANE backends (sane-backends-all)"
 
     comment "Backends"
 
@@ -65,7 +69,7 @@ $(foreach backend,$(SANE_BACKENDS), \
       $(call Package/sane-$(backend))
     )\
     config PACKAGE_sane-$(backend)
-      prompt "$(TITLE)"
+      tristate "$(TITLE)"
      $(foreach config_dep,\
        $(filter @%,
          $(foreach v, $(DEPENDS), $(if $(findstring :,$v),,$v))
@@ -125,6 +129,7 @@ $(call Package/sane-backends/Default)
   CATEGORY:=Utilities
   DEPENDS:=+libsane
   TITLE+= (network daemon)
+  USERID:=saned:scanner
 endef
 
 define Package/sane-daemon/description
@@ -132,10 +137,22 @@ $(call Package/sane-backends/Default/description)
 This package contains the SANE daemon.
 endef
 
+# Run hotplug to grant access to existing scanners
+define Package/sane-daemon/postinst
+#!/bin/sh
+# We only need udevtrigger to have the magic work without
+# rebooting on a real system.  In ImageBuilder or
+# the like, the boot process will call udevtrigger.
+if [ -z "$${IPKG_INSTROOT}" ]; then
+	udevtrigger
+fi
+endef
+
 define Package/libsane
   $(call Package/sane-backends/Default)
   SECTION:=libs
   CATEGORY:=Libraries
+  DEPENDS+=+libusb-1.0
   TITLE+= (libraries)
 endef
 
@@ -157,21 +174,33 @@ $(call Package/sane-backends/Default/description)
 This package contains the SANE frontends.
 endef
 
-CONFIGURE_ARGS+= \
+CONFIGURE_ARGS += \
 	--enable-shared \
 	--enable-static \
 	--disable-preload \
 	--without-snmp \
-	--disable-avahi \
+	--without-avahi \
 	--disable-locking \
+	--without-usb-record-replay \
 
 # ./configure does not even try to detect mmap if crosscompiling
-CONFIGURE_VARS+= \
-    ac_cv_func_mmap_fixed_mapped="yes" \
+CONFIGURE_VARS += \
+    ac_cv_func_mmap_fixed_mapped="yes"
 
 define Build/Configure
 	mkdir -p $(PKG_BUILD_DIR)/backend/.libs
 	$(Build/Configure/Default)
+endef
+
+define Build/Install
+	$(call Build/Install/Default)
+	mkdir -p $(PKG_INSTALL_DIR)/usr/share/sane
+	$(foreach file, $(filter-out %/unsupported.desc ,$(wildcard $(PKG_BUILD_DIR)/doc/descriptions/*.desc)),
+		sed -rn -e '/^:usbid[[:blank:]]+"?0x(....)"?[[:blank:]]+"?0x(....)"?.*/{s//\1 \2/;p}' $(file) | \
+			sort -u > $(PKG_INSTALL_DIR)/usr/share/sane/$(basename $(notdir $(file))).usbid; \
+		awk '{ print $$$$2 > "$(PKG_INSTALL_DIR)/usr/share/sane/"$$$$1"-$(basename $(notdir $(file))).usbid" }' \
+			$(PKG_INSTALL_DIR)/usr/share/sane/$(basename $(notdir $(file))).usbid ;
+	)
 endef
 
 define Package/libsane/install
@@ -180,7 +209,7 @@ define Package/libsane/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/sane/libsane-dll.so.* $(1)/usr/lib/sane/
 	$(INSTALL_DIR) $(1)/etc/sane.d/dll.d
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/sane.d/dll.conf $(1)/etc/sane.d/
-	chmod 0755 $(1)/etc/sane.d/dll.conf
+	chmod 0644 $(1)/etc/sane.d/dll.conf
 endef
 
 define Package/libsane/conffiles
@@ -190,13 +219,15 @@ endef
 define Package/sane-daemon/install
 	$(INSTALL_DIR) $(1)/etc/sane.d
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/sane.d/saned.conf $(1)/etc/sane.d/
-	chmod 0755 $(1)/etc/sane.d/saned.conf
+	chmod 0644 $(1)/etc/sane.d/saned.conf
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) ./files/saned.sbin $(1)/usr/sbin/saned
 	$(INSTALL_DIR) $(1)/usr/lib/sane/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/saned $(1)/usr/lib/sane/saned
 	$(INSTALL_DIR) $(1)/etc/xinetd.d
 	$(INSTALL_CONF) ./files/saned.xinetd $(1)/etc/xinetd.d/sane-port
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/usb/
+	$(INSTALL_BIN) ./files/saned.hotplug $(1)/etc/hotplug.d/usb/20-saned
 endef
 
 define Package/sane-daemon/conffiles
@@ -243,20 +274,24 @@ This package contains the SANE backend for $(2).
 
   define Package/sane-$(1)/install
 	if [ -f "$(PKG_INSTALL_DIR)/etc/sane.d/$(1).conf" ]; then \
-	  $(INSTALL_DIR) $$(1)/etc/sane.d ; \
-	  $(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/sane.d/$(1).conf $$(1)/etc/sane.d/; \
-	  chmod 0755 $$(1)/etc/sane.d/$(1).conf ; \
-	fi
-	$(INSTALL_DIR) $$(1)/usr/lib/sane
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/sane/libsane-$(1).so.* $$(1)/usr/lib/sane/
+		$(INSTALL_DIR) $$(1)/etc/sane.d ; \
+		$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/sane.d/$(1).conf $$(1)/etc/sane.d/ ; \
+	        chmod 0644 $$(1)/etc/sane.d/$(1).conf ; \
+	fi ; \
+	$(INSTALL_DIR) $$(1)/usr/lib/sane ; \
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/sane/libsane-$(1).so.* $$(1)/usr/lib/sane/ ; \
 	if [ -d "$(PKG_INSTALL_DIR)/usr/share/sane/$(1)" ]; then \
 		$(INSTALL_DIR) $$(1)/usr/share/sane/ ; \
 		$(CP) -a $(PKG_INSTALL_DIR)/usr/share/sane/$(1) $$(1)/usr/share/sane/ ; \
+	fi ; \
+	if [ -s "$(PKG_INSTALL_DIR)/usr/share/sane/$(1).usbid" ]; then \
+		$(INSTALL_DIR) $$(1)/usr/share/sane/ ; \
+		$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/sane/????-$(1).usbid $$(1)/usr/share/sane/ ; \
 	fi
   endef
 
   define Package/sane-$(1)/conffiles
-	/etc/sane.d/$(1).conf
+/etc/sane.d/$(1).conf
   endef
 
   $$(eval $$(call BuildPackage,sane-$(1)))
@@ -277,6 +312,7 @@ $(eval $(call SaneBackend,canon630u,the Canon 630u USB flatbed scanner,+libusb-1
 $(eval $(call SaneBackend,canon_dr,Canon DR-series scanners,+libusb-1.0))
 # Depends on libieee1284
 #$(eval $(call SaneBackend,canon_pp,Canon CanoScan Parallel Port flatbed scanners,+libieee1284))
+$(eval $(call SaneBackend,canon_lide70,Canon LiDE 70 USB flatbed scanner,))
 $(eval $(call SaneBackend,cardscan,Corex CardScan usb scanners,+libusb-1.0))
 $(eval $(call SaneBackend,coolscan,Nikon film-scanners,+libusb-1.0))
 $(eval $(call SaneBackend,coolscan2,Nikon Coolscan film scanners,+libusb-1.0))
@@ -290,8 +326,9 @@ $(eval $(call SaneBackend,epjitsu,Epson-based Fujitsu USB scanners,+libusb-1.0))
 $(eval $(call SaneBackend,epson,EPSON scanners,+libusb-1.0))
 $(eval $(call SaneBackend,epsonds,EPSON scanners,+libjpeg +libusb-1.0)) ####
 $(eval $(call SaneBackend,epson2,EPSON scanners,+libusb-1.0))
+#$(eval $(call SaneBackend,escl,AirScan/eSCL devices,+libcurl +libxml2 +libnetsnmp +libavahi))
 $(eval $(call SaneBackend,fujitsu,Fujitsu flatbed and ADF scanners,+libusb-1.0))
-$(eval $(call SaneBackend,genesys,GL646 GL841 GL843 GL847 and GL124 based USB flatbed scanners,+libstdcpp +libusb-1.0))
+$(eval $(call SaneBackend,genesys,GL646 GL841 GL843 GL847 and GL124 based USB flatbed scanners,+libstdcpp +libusb-1.0 +libtiff))
 $(eval $(call SaneBackend,gphoto2,digital cameras supported by gphoto2,+libjpeg +libgphoto2))
 $(eval $(call SaneBackend,gt68xx,GT-68XX based USB flatbed scanners,+libusb-1.0))
 $(eval $(call SaneBackend,hp,HP ScanJet scanners,+libusb-1.0))
@@ -309,8 +346,7 @@ $(eval $(call SaneBackend,kodak,big Kodak flatbed and ADF scanners,+libusb-1.0))
 $(eval $(call SaneBackend,kodakaio,Kodak aio printer / scanners,+libusb-1.0))
 $(eval $(call SaneBackend,kvs1025,Panasonic KV-S102xC USB ADF scanners,+libusb-1.0))
 $(eval $(call SaneBackend,kvs20xx,Panasonic KV-S20xxC USB/SCSI ADF scanners,+libusb-1.0))
-# https://gitlab.com/sane-project/backends/issues/153
-#$(eval $(call SaneBackend,kvs40xx,Panasonic KV-S40xxC USB/SCSI ADF scanners,+libpthread +libusb-1.0))
+$(eval $(call SaneBackend,kvs40xx,Panasonic KV-S40xxC USB/SCSI ADF scanners,+libpthread +libusb-1.0))
 $(eval $(call SaneBackend,leo,LEO Technologies scanners))
 $(eval $(call SaneBackend,lexmark,Lexmark X1100/X1200 Series scanners,+libusb-1.0))
 $(eval $(call SaneBackend,ma1509,Mustek BearPaw 1200F USB scanner,+libusb-1.0))
@@ -322,8 +358,7 @@ $(eval $(call SaneBackend,mustek,Mustek SCSI flatbed scanners and some other dev
 # Depends on libieee1284
 #$(eval $(call SaneBackend,mustek_pp,Mustek parallel port flatbed scanners,+libieee1284))
 $(eval $(call SaneBackend,mustek_usb,Mustek USB flatbed scanners,+libusb-1.0))
-# https://gitlab.com/sane-project/backends/issues/153
-#$(eval $(call SaneBackend,mustek_usb2,SQ113 based USB flatbed scanners,+libpthread +libusb-1.0))
+$(eval $(call SaneBackend,mustek_usb2,SQ113 based USB flatbed scanners,+libpthread +libusb-1.0))
 $(eval $(call SaneBackend,nec,NEC scanners))
 $(eval $(call SaneBackend,net,network backend))
 $(eval $(call SaneBackend,niash,scanners based on the NIASH chipset,+libusb-1.0))

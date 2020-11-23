@@ -5,7 +5,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vpnbypass
 PKG_VERSION:=1.3.1
-PKG_RELEASE:=4
+PKG_RELEASE:=10
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_MAINTAINER:=Stan Grishin <stangri@melmac.net>
 
@@ -14,9 +14,8 @@ include $(INCLUDE_DIR)/package.mk
 define Package/vpnbypass
 	SECTION:=net
 	CATEGORY:=Network
-	DEPENDS:=+ipset +iptables
-	CONFLICTS:=vpn-policy-routing
 	TITLE:=VPN Bypass Service
+	DEPENDS:=+ipset +iptables
 	PKGARCH:=all
 endef
 
@@ -53,22 +52,11 @@ define Package/vpnbypass/install
 	$(INSTALL_DATA) ./files/vpnbypass.hotplug $(1)/etc/hotplug.d/firewall/94-vpnbypass
 endef
 
-
 define Package/vpnbypass/postinst
 	#!/bin/sh
 	# check if we are on real system
 	if [ -z "$${IPKG_INSTROOT}" ]; then
 		/etc/init.d/vpnbypass enable
-
-		while uci -q del ucitrack.@vpnbypass[-1]; do :; done
-
-		uci -q batch <<-EOF >/dev/null
-			add ucitrack vpnbypass
-			set ucitrack.@vpnbypass[0].init='vpnbypass'
-			del_list ucitrack.@firewall[0].affects='vpnbypass'
-			add_list ucitrack.@firewall[0].affects='vpnbypass'
-			commit ucitrack
-	EOF
 	fi
 	exit 0
 endef
@@ -77,8 +65,6 @@ define Package/vpnbypass/prerm
 	#!/bin/sh
 	# check if we are on real system
 	if [ -z "$${IPKG_INSTROOT}" ]; then
-		while uci -q delete ucitrack.@vpnbypass[-1]; do :; done
-		uci -q del_list ucitrack.@firewall[0].affects='vpnbypass'
 		echo "Stopping service and removing rc.d symlink for vpnbypass"
 		/etc/init.d/vpnbypass stop || true
 		/etc/init.d/vpnbypass disable || true

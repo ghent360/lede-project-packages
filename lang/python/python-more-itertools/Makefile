@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 CZ.NIC, z. s. p. o. (https://www.nic.cz/)
+# Copyright (C) 2019-2020 CZ.NIC, z. s. p. o. (https://www.nic.cz/)
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-more-itertools
-PKG_VERSION:=7.2.0
+PKG_VERSION:=8.6.0
 PKG_RELEASE:=1
 
 PYPI_NAME:=more-itertools
-PKG_HASH:=409cd48d4db7052af495b09dec721011634af3753ae1ef92d2b32f73a745f832
+PKG_HASH:=b3a9005928e5bed54076e6e549c792b306fddfe72b2d1d22dd63d42d5d3899cf
 
 PKG_MAINTAINER:=Jan Pavlinec <jan.pavlinec@nic.cz>
 PKG_LICENSE:=MIT
@@ -29,7 +29,6 @@ define Package/python3-more-itertools
   TITLE:=More routines for operating on iterables, beyond itertools
   URL:=https://github.com/erikrose/more-itertools
   DEPENDS:=+python3-light
-  VARIANT:=python3
 endef
 
 define Package/python3-more-itertools/description

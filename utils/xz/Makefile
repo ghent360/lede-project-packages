@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xz
-PKG_VERSION:=5.2.4
-PKG_RELEASE:=5
+PKG_VERSION:=5.2.5
+PKG_RELEASE:=2
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@SF/lzmautils
-PKG_HASH:=3313fd2a95f43d88e44264e6b015e7d03053e681860b0d5d3f9baca79c57b7bf
+PKG_HASH:=3e1e518ffc912f86608a8cb35e4bd41ad1aec210df2a47aaa1f95e7f5576ef56
 
 PKG_MAINTAINER:=
 PKG_LICENSE:=Public-Domain LGPL-2.1-or-later GPL-2.0-or-later GPL-3.0-or-later
@@ -56,6 +56,7 @@ define BuildSubPackage
   $(call Package/xz/Default)
     DEPENDS:=xz-utils $(2)
     TITLE:=$(1) utility from XZ Utils
+    $(if $(3),ALTERNATIVES:=$(foreach f,$(1) $(3),300:/usr/bin/$(f):/usr/bin/lzmautils-$(1)))
   endef
 
   define Package/$(1)/description
@@ -64,7 +65,7 @@ define BuildSubPackage
 
   define Package/$(1)/install
 	$(INSTALL_DIR) $$(1)/usr/bin
-	$(CP) $(foreach f,$(1) $(3),$(PKG_INSTALL_DIR)/usr/bin/$(f)) $$(1)/usr/bin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/$(1) $$(1)/usr/bin/$(if $(3),lzmautils-$(1))
   endef
 
   $$(eval $$(call BuildPackage,$(1)))

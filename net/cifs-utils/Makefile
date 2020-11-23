@@ -8,18 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cifs-utils
-PKG_VERSION:=6.9
-PKG_RELEASE:=2
+PKG_VERSION:=6.11
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://download.samba.org/pub/linux-cifs/cifs-utils/
-PKG_HASH:=18d8f1bf92c13c4d611502dbd6759e3a766ddc8467ec8a2eda3f589e40b9ac9c
+PKG_HASH:=b859239a3f204f8220d3e54ed43bf8109e1ef202042dd87ba87492f8878728d9
 
-PKG_MAINTAINER:=Florian Fainelli <florian@openwrt.org>
-PKG_LICENSE:=GPL-3.0
+PKG_MAINTAINER:=
+PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=COPYING
-PKG_CPE_ID:=cpe:/a:debian:cifs-utils
+PKG_CPE_ID:=cpe:/a:samba:cifs-utils
 
+PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 
@@ -53,6 +54,9 @@ CONFIGURE_ARGS += \
 	--disable-man \
 	--without-libcap
 
+CONFIGURE_ARGS += \
+	ac_cv_lib_cap_ng_capng_clear=no
+
 TARGET_CFLAGS += $(FPIC) -ffunction-sections -flto
 TARGET_LDFLAGS += -Wl,--gc-sections,--as-needed
 
@@ -64,6 +68,7 @@ endef
 define Package/cifsmount/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/sbin/mount.cifs $(1)/usr/sbin/
+	$(LN) /usr/sbin/mount.cifs $(1)/usr/sbin/mount.smb3
 endef
 
 define Package/smbinfo/install

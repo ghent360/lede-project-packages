@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python3-unidecode
 PKG_VERSION:=1.1.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PYPI_NAME:=Unidecode
 PKG_HASH:=2b6aab710c2a1647e928e36d69c21e76b453cd455f4e2621000e54b2a9b8cce8
@@ -29,13 +29,12 @@ define Package/python3-unidecode
   TITLE:=ASCII transliterations of Unicode text
   URL:=https://github.com/avian2/unidecode
   DEPENDS:=+python3-light
-  VARIANT:=python3
 endef
 
 define Package/python-unidecode/description
   Unidecode, lossy ASCII transliterations of Unicode text
 endef
 
-$(eval $(call Py3Package,$(PKG_NAME)))
-$(eval $(call BuildPackage,$(PKG_NAME)))
-$(eval $(call BuildPackage,$(PKG_NAME)-src))
+$(eval $(call Py3Package,python3-unidecode))
+$(eval $(call BuildPackage,python3-unidecode))
+$(eval $(call BuildPackage,python3-unidecode-src))

@@ -9,18 +9,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=LVM2
-PKG_VERSION:=2.03.02
-PKG_RELEASE:=2
+PKG_VERSION:=2.03.10
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME).$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://sourceware.org/pub/lvm2
-PKG_HASH:=550ba750239fd75b7e52c9877565cabffef506bbf6d7f6f17b9700dee56c720f
+PKG_HASH:=5ad1645a480440892e35f31616682acba0dc204ed049635d2df3e5a5929d0ed0
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME).$(PKG_VERSION)
 
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 PKG_LICENSE:=GPL-2.0 LGPL-2.1
 PKG_LICENSE_FILES:=COPYING COPYING.lib
 PKG_CPE_ID:=cpe:/a:heinz_mauelshagen:lvm2
+
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -29,7 +31,7 @@ define Package/libdevmapper
   CATEGORY:=Libraries
   TITLE:=The Linux Kernel Device Mapper userspace library
   URL:=https://sourceware.org/dm/
-  DEPENDS:=+kmod-dm +libpthread +libuuid +librt +libblkid
+  DEPENDS:=+kmod-dm +libpthread +libuuid +librt +libblkid +libselinux
 endef
 
 define Package/libdevmapper/description
@@ -53,16 +55,21 @@ define Package/lvm2/description
 endef
 
 CONFIGURE_ARGS += \
-  --disable-o_direct \
-  --with-default-pid-dir=/var/run \
-  --with-default-dm-run-dir=/var/run \
-  --with-default-run-dir=/var/run/lvm \
-  --with-default-locking-dir=/var/lock/lvm
+	--disable-o_direct \
+	--with-default-pid-dir=/var/run \
+	--with-default-dm-run-dir=/var/run \
+	--with-default-run-dir=/var/run/lvm \
+	--with-default-locking-dir=/var/lock/lvm
+
+ifneq ($(shell /bin/sh -c "echo -n 'X'"),X)
+MAKE_SHELL = SHELL=/bin/bash
+endif
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS) $(FPIC)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
+		$(MAKE_SHELL) \
 		install
 endef
 
@@ -90,6 +97,8 @@ define Package/lvm2/install
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/lvm/lvmlocal.conf $(1)/etc/lvm/
 	$(INSTALL_DIR) $(1)/etc/lvm/profile
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/lvm/profile/* $(1)/etc/lvm/profile/
+	$(INSTALL_DIR) $(1)/lib/preinit
+	$(INSTALL_DATA) ./files/lvm2.preinit $(1)/lib/preinit/80_lvm2
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/lvm2.init $(1)/etc/init.d/lvm2
 	$(FIND) $(PKG_INSTALL_DIR)/usr/sbin/ -type l -exec $(CP) -a {} $(1)/sbin/ \;

@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=check
-PKG_VERSION:=0.13.0
+PKG_VERSION:=0.15.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/libcheck/check/releases/download/$(PKG_VERSION)
-PKG_HASH:=c4336b31447acc7e3266854f73ec188cdb15554d0edd44739631da174a569909
+PKG_HASH:=aea2e3c68fa6e1e92378e744b1c0db350ccda4b6bd0d19530d0ae185b3d1ac60
 
 PKG_MAINTAINER:=Eduardo Abinader <eduardoabinader@gmail.com>
 PKG_LICENSE:=LGPL-2.1-or-later

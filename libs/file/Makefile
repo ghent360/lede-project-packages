@@ -8,16 +8,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=file
-PKG_VERSION:=5.37
+PKG_VERSION:=5.39
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://src.fedoraproject.org/lookaside/pkgs/file/ \
-	http://download.openpkg.org/components/cache/file/ \
+PKG_SOURCE_URL:=http://download.openpkg.org/components/cache/file/ \
 	ftp://ftp.astron.com/pub/file/
-PKG_HASH:=e9c13967f7dd339a3c241b7710ba093560b9a33013491318e88e6b8b57bae07f
+PKG_HASH:=f05d286a76d9556243d0cb05814929c2ecf3a5ba07963f8f70bfaaa70517fad1
 
-PKG_LICENSE:=BSD-2c
+PKG_MAINTAINER:=Marko Ratkaj <marko.ratkaj@sartura.hr>
+PKG_LICENSE:=BSD-2-Clause
 PKG_LICENSE_FILES:=COPYING
 
 PKG_INSTALL:=1
@@ -28,7 +28,6 @@ include $(INCLUDE_DIR)/package.mk
 define Package/file/Default
   TITLE:=File type determination
   URL:=https://darwinsys.com/file/
-  MAINTAINER:=Marko Ratkaj <marko.ratkaj@sartura.hr>
 endef
 
 define Package/file
@@ -44,7 +43,7 @@ $(call Package/file/Default)
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE+= library
-  DEPENDS:=+zlib
+  DEPENDS:=+zlib +liblzma +libbz2
 endef
 
 TARGET_CFLAGS += $(FPIC)
@@ -53,6 +52,9 @@ TARGET_LDFLAGS += -Wl,--gc-sections,--as-needed
 CONFIGURE_ARGS += \
 	--enable-shared \
 	--enable-static \
+	--enable-bzlib \
+	--enable-xzlib \
+	--enable-zlib \
 	--disable-libseccomp \
 	--disable-rpath \
 	--disable-warnings \

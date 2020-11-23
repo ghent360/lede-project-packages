@@ -8,18 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pciutils
-PKG_VERSION:=3.6.2
-PKG_RELEASE:=3
+PKG_VERSION:=3.7.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/software/utils/pciutils
-PKG_HASH:=db452ec986edefd88af0d222d22f6102f8030a8633fdfe846c3ae4bde9bb93f3
+PKG_HASH:=9d40b97be8b6a2cdf96aead5a61881d1f7e4e0da9544a9bac4fba1ae9dcd40eb
 
 PKG_MAINTAINER:=Lucian Cristian <lucian.cristian@gmail.com>
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
 
-PKG_USE_MIPS16:=0
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
@@ -46,13 +45,13 @@ define Package/libpci
 endef
 
 
-PCI_IDS_VER:=0.324
+PCI_IDS_VER:=0.336
 PCI_IDS_FILE:=pci.ids.$(PCI_IDS_VER)
 define Download/pci_ids
   FILE:=$(PCI_IDS_FILE)
   URL_FILE:=pci.ids
   URL:=@GITHUB/vcrhonek/hwdata/v$(PCI_IDS_VER)
-  HASH:=6dba287b4aaafb9582d6139eda22ee6580651b8557828b9598d99078a5f4217e
+  HASH:=94053616c1f9b93540861931fb7891b1b30d6fd21b3e2c1647467527ea38f557
 endef
 $(eval $(call Download,pci_ids))
 
@@ -83,6 +82,8 @@ define Build/InstallDev
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(CP) $(PKG_BUILD_DIR)/lib/libpci.pc $(1)/usr/lib/pkgconfig
+	$(SED) 's,/usr/include,$$$${prefix}/include,g' $(1)/usr/lib/pkgconfig/libpci.pc
+	$(SED) 's,/usr/lib,$$$${prefix}/lib,g' $(1)/usr/lib/pkgconfig/libpci.pc
 	$(INSTALL_DIR) $(1)/usr/include/pci
 	$(CP) $(foreach i,pci.h config.h header.h types.h, \
 		$(PKG_BUILD_DIR)/lib/$(i)) $(1)/usr/include/pci

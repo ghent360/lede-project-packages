@@ -10,19 +10,18 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=shorewall-core
 PKG_MAJOR_MINOR_VERSION:=5.2
-PKG_BUGFIX_MAJOR_VERSION:=3
-PKG_BUGFIX_MINOR_VERSION:=.4
+PKG_BUGFIX_MAJOR_VERSION:=8
+PKG_BUGFIX_MINOR_VERSION:=
 PKG_VERSION:=$(PKG_MAJOR_MINOR_VERSION).$(PKG_BUGFIX_MAJOR_VERSION)$(PKG_BUGFIX_MINOR_VERSION)
 PKG_DIRECTORY:=$(PKG_MAJOR_MINOR_VERSION).$(PKG_BUGFIX_MAJOR_VERSION)
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=http://www.shorewall.net/pub/shorewall/$(PKG_MAJOR_MINOR_VERSION)/shorewall-$(PKG_DIRECTORY)/ \
-	http://www1.shorewall.net/pub/shorewall/$(PKG_MAJOR_MINOR_VERSION)/shorewall-$(PKG_DIRECTORY)/ \
+PKG_SOURCE_URL:=http://shorewall.org/pub/shorewall/$(PKG_MAJOR_MINOR_VERSION)/shorewall-$(PKG_DIRECTORY)/ \
 	http://slovakia.shorewall.net/pub/shorewall/$(PKG_MAJOR_MINOR_VERSION)/shorewall-$(PKG_DIRECTORY)/ \
-	http://shorewall.de/pub/shorewall/$(PKG_MAJOR_MINOR_VERSION)/shorewall-$(PKG_DIRECTORY)/ \
-	http://www.shorewall.com.au/$(PKG_MAJOR_MINOR_VERSION)/shorewall-$(PKG_DIRECTORY)/
+	http://www.shorewall.no/pub/shorewall/$(PKG_MAJOR_MINOR_VERSION)/shorewall-$(PKG_DIRECTORY)/ \
+	http://france.shorewall.net/$(PKG_MAJOR_MINOR_VERSION)/shorewall-$(PKG_DIRECTORY)/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_HASH:=8fdc6e326d0c07df2a636634c510630e99f7a3ab70bb60fb735dd92a0d33d500
+PKG_HASH:=39996b9697a2017947049ad3f03cb278e8f939ff924b2bb4bf2a0bc17c59988e
 
 PKG_MAINTAINER:=Willem van den Akker <wvdakker@wilsoft.nl>
 PKG_LICENSE:=GPL-2.0-or-later
@@ -45,7 +44,7 @@ define Package/shorewall-core/description
 endef
 
 define Package/shorewall-core/conffiles
-	/usr/share/shorewall/shorewallrc
+/usr/share/shorewall/shorewallrc
 endef
 
 CONFIGURE_ARGS += \

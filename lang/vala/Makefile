@@ -8,17 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vala
-PKG_VERSION:=0.46.5
+PKG_VERSION:=0.50.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=@GNOME/vala/0.46
-PKG_HASH:=1a7847d2599d902c805a58b95b72b69e64c0223c2f6220163998a7ab4b42db1d
+PKG_SOURCE_URL:=@GNOME/vala/0.50
+PKG_HASH:=838adc50ac08881e06cf233fefd93740dec1530312cc1cf12c36d4e0e87d3071
 
 PKG_MAINTAINER:=
 PKG_LICENSE:=LGPL-2.1-or-later
 PKG_LICENSE_FILES:=COPYING
 
+PKG_HOST_ONLY:=1
 HOST_BUILD_DEPENDS:=glib2/host
 HOST_BUILD_PARALLEL:=1
 
@@ -30,6 +31,7 @@ define Package/vala
   CATEGORY:=Languages
   TITLE:=C-sharp like language for the GObject system
   URL:=https://wiki.gnome.org/Projects/Vala
+  BUILDONLY:=1
 endef
 
 define Package/vala/description
@@ -42,6 +44,9 @@ HOST_CONFIGURE_ARGS += \
 	--disable-debug \
 	--disable-valadoc \
 	--without-cgraph
+
+HOST_LDFLAGS += \
+	-Wl,--rpath,$(STAGING_DIR_HOSTPKG)/lib
 
 $(eval $(call HostBuild))
 $(eval $(call BuildPackage,vala))

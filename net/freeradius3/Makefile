@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2016 OpenWrt.org
+# Copyright (C) 2008-2020 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,26 +8,30 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeradius3
-PKG_VERSION:=release_3_0_19
-PKG_RELEASE:=2
+PKG_VERSION:=3_0_21
+PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_VERSION).tar.gz
+PKG_SOURCE:=release_$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/FreeRADIUS/freeradius-server/archive
-PKG_HASH:=34c50ac47a683b13eae1a02f2d0263c0bd51a83f01b99c02c5fe25df07a1ee77
+PKG_HASH:=b2014372948a92f86cfe2cf43c58ef47921c03af05666eb9d6416bdc6eeaedc2
 
 PKG_MAINTAINER:=
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYRIGHT LICENSE
 PKG_CPE_ID:=cpe:/a:freeradius:freeradius
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/freeradius-server-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/freeradius-server-release_$(PKG_VERSION)
 PKG_FIXUP:=autoreconf
+PYTHON3_PKG_BUILD:=0
 
 PKG_CONFIG_DEPENDS := \
   FREERADIUS3_OPENSSL \
   FREERADIUS3_NOSSL
 
+CFLAGS += $(FPIC)
+
 include $(INCLUDE_DIR)/package.mk
+include ../../lang/python/python3-package.mk
 
 define Package/freeradius3/config
   source "$(SOURCE)/Config.in"
@@ -48,8 +52,12 @@ endef
 
 define Package/freeradius3/conffiles
 /etc/freeradius3/clients.conf
+/etc/freeradius3/policy.d/accounting
+/etc/freeradius3/policy.d/filter
+/etc/freeradius3/proxy.conf
 /etc/freeradius3/radiusd.conf
-/etc/freeradius3/sites/default
+/etc/freeradius3/sites-available/default
+/etc/freeradius3/sites-enabled/default
 endef
 
 define Package/freeradius3-common
@@ -73,9 +81,9 @@ define Package/freeradius3-default
 +freeradius3-mod-eap-md5 \
 +freeradius3-mod-eap-mschapv2 \
 +freeradius3-mod-eap-peap \
++freeradius3-mod-eap-pwd \
 +freeradius3-mod-eap-tls \
 +freeradius3-mod-eap-ttls \
-+freeradius3-mod-eap-pwd \
 +freeradius3-mod-exec \
 +freeradius3-mod-expiration \
 +freeradius3-mod-expr \
@@ -90,10 +98,48 @@ define Package/freeradius3-default
   TITLE:=Modules needed for Radius default configuration
 endef
 
+define Package/freeradius3-default/description
+ This meta-package contains only dependencies for modules needed in
+ FreeRADIUS default configuration.
+endef
+
 define Package/freeradius3-democerts
   $(call Package/freeradius3/Default)
   DEPENDS:=freeradius3
   TITLE:=Demo certificates to test the server
+endef
+
+define Package/freeradius3-mod-always
+  $(call Package/freeradius3/Default)
+  DEPENDS:=freeradius3
+  TITLE:=Always module
+endef
+
+define Package/freeradius3-mod-always/conffiles
+/etc/freeradius3/mods-available/always
+/etc/freeradius3/mods-enabled/always
+endef
+
+define Package/freeradius3-mod-attr-filter
+  $(call Package/freeradius3/Default)
+  DEPENDS:=freeradius3
+  TITLE:=ATTR filter module
+endef
+
+define Package/freeradius3-mod-attr-filter/conffiles
+/etc/freeradius3/mods-available/attr_filter
+/etc/freeradius3/mods-enabled/attr_filter
+/etc/freeradius3/mods-config/attr_filter/access_challenge
+/etc/freeradius3/mods-config/attr_filter/access_reject
+/etc/freeradius3/mods-config/attr_filter/accounting_response
+/etc/freeradius3/mods-config/attr_filter/post-proxy
+/etc/freeradius3/mods-config/attr_filter/pre-proxy
+endef
+
+define Package/freeradius3-mod-attr-rewrite
+  $(call Package/freeradius3/Default)
+  DEPENDS:=freeradius3
+  TITLE:=ATTR rewrite module
 endef
 
 define Package/freeradius3-mod-chap
@@ -173,6 +219,12 @@ define Package/freeradius3-mod-eap-peap
   TITLE:=EAP/PEAP module
 endef
 
+define Package/freeradius3-mod-eap-pwd
+  $(call Package/freeradius3/Default)
+  DEPENDS:=freeradius3-mod-eap @FREERADIUS3_OPENSSL
+  TITLE:=EAP/PWD module
+endef
+
 define Package/freeradius3-mod-eap-tls
   $(call Package/freeradius3/Default)
   DEPENDS:=freeradius3-mod-eap @FREERADIUS3_OPENSSL
@@ -183,12 +235,6 @@ define Package/freeradius3-mod-eap-ttls
   $(call Package/freeradius3/Default)
   DEPENDS:=freeradius3-mod-eap-tls
   TITLE:=EAP/TTLS module
-endef
-
-define Package/freeradius3-mod-eap-pwd
-  $(call Package/freeradius3/Default)
-  DEPENDS:=freeradius3-mod-eap @FREERADIUS3_OPENSSL
-  TITLE:=EAP/PWD module
 endef
 
 define Package/freeradius3-mod-exec
@@ -213,17 +259,6 @@ define Package/freeradius3-mod-expiration/conffiles
 /etc/freeradius3/mods-enabled/expiration
 endef
 
-define Package/freeradius3-mod-always
-  $(call Package/freeradius3/Default)
-  DEPENDS:=freeradius3
-  TITLE:=Always module
-endef
-
-define Package/freeradius3-mod-always/conffiles
-/etc/freeradius3/mods-available/always
-/etc/freeradius3/mods-enabled/always
-endef
-
 define Package/freeradius3-mod-expr
   $(call Package/freeradius3/Default)
   DEPENDS:=freeradius3
@@ -233,28 +268,6 @@ endef
 define Package/freeradius3-mod-expr/conffiles
 /etc/freeradius3/mods-available/expr
 /etc/freeradius3/mods-enabled/expr
-endef
-
-define Package/freeradius3-mod-attr-filter
-  $(call Package/freeradius3/Default)
-  DEPENDS:=freeradius3
-  TITLE:=ATTR filter module
-endef
-
-define Package/freeradius3-mod-attr-filter/conffiles
-/etc/freeradius3/mods-available/attr_filter
-/etc/freeradius3/mods-enabled/attr_filter
-/etc/freeradius3/mods-config/attr_filter/access_challenge
-/etc/freeradius3/mods-config/attr_filter/access_reject
-/etc/freeradius3/mods-config/attr_filter/accounting_response
-/etc/freeradius3/mods-config/attr_filter/post-proxy
-/etc/freeradius3/mods-config/attr_filter/pre-proxy
-endef
-
-define Package/freeradius3-mod-attr-rewrite
-  $(call Package/freeradius3/Default)
-  DEPENDS:=freeradius3
-  TITLE:=ATTR rewrite module
 endef
 
 define Package/freeradius3-mod-files
@@ -269,17 +282,6 @@ define Package/freeradius3-mod-files/conffiles
 /etc/freeradius3/mods-config/files/accounting
 /etc/freeradius3/mods-config/files/authorize
 /etc/freeradius3/mods-config/files/pre-proxy
-endef
-
-define Package/freeradius3-mod-passwd
-  $(call Package/freeradius3/Default)
-  DEPENDS:=freeradius3
-  TITLE:=Rlm passwd module
-endef
-
-define Package/freeradius3-mod-passwd/conffiles
-/etc/freeradius3/mods-available/passwd
-/etc/freeradius3/mods-enabled/passwd
 endef
 
 define Package/freeradius3-mod-ldap
@@ -325,6 +327,17 @@ define Package/freeradius3-mod-pap/conffiles
 /etc/freeradius3/mods-enabled/pap
 endef
 
+define Package/freeradius3-mod-passwd
+  $(call Package/freeradius3/Default)
+  DEPENDS:=freeradius3
+  TITLE:=Rlm passwd module
+endef
+
+define Package/freeradius3-mod-passwd/conffiles
+/etc/freeradius3/mods-available/passwd
+/etc/freeradius3/mods-enabled/passwd
+endef
+
 define Package/freeradius3-mod-preprocess
   $(call Package/freeradius3/Default)
   DEPENDS:=freeradius3
@@ -338,6 +351,29 @@ define Package/freeradius3-mod-preprocess/conffiles
 /etc/freeradius3/mods-enabled/preprocess
 endef
 
+define Package/freeradius3-mod-python3
+  $(call Package/freeradius3/Default)
+  DEPENDS:=freeradius3 +python3
+  TITLE:=Python3 module
+endef
+
+define Package/freeradius3-mod-python3/conffiles
+/etc/freeradius3/mods-available/python3
+endef
+
+define Package/freeradius3-mod-radutmp
+  $(call Package/freeradius3/Default)
+  DEPENDS:=freeradius3
+  TITLE:=Radius UTMP module
+endef
+
+define Package/freeradius3-mod-radutmp/conffiles
+/etc/freeradius3/mods-available/radutmp
+/etc/freeradius3/mods-enabled/radutmp
+/etc/freeradius3/mods-available/sradutmp
+/etc/freeradius3/mods-enabled/sradutmp
+endef
+
 define Package/freeradius3-mod-realm
   $(call Package/freeradius3/Default)
   DEPENDS:=freeradius3
@@ -345,9 +381,18 @@ define Package/freeradius3-mod-realm
 endef
 
 define Package/freeradius3-mod-realm/conffiles
-/etc/freeradius3/proxy.conf
 /etc/freeradius3/mods-available/realm
 /etc/freeradius3/mods-enabled/realm
+endef
+
+define Package/freeradius3-mod-rest
+  $(call Package/freeradius3/Default)
+  DEPENDS:=freeradius3 +libcurl +libjson-c
+  TITLE:=Radius REST module
+endef
+
+define Package/freeradius3-mod-rest/conffiles
+/etc/freeradius3/mods-available/rest
 endef
 
 define Package/freeradius3-mod-sql
@@ -420,19 +465,6 @@ define Package/freeradius3-mod-sqlippool/conffiles
 /etc/freeradius3/mods-available/sqlippool
 endef
 
-define Package/freeradius3-mod-radutmp
-  $(call Package/freeradius3/Default)
-  DEPENDS:=freeradius3
-  TITLE:=Radius UTMP module
-endef
-
-define Package/freeradius3-mod-radutmp/conffiles
-/etc/freeradius3/mods-available/radutmp
-/etc/freeradius3/mods-enabled/radutmp
-/etc/freeradius3/mods-available/sradutmp
-/etc/freeradius3/mods-enabled/sradutmp
-endef
-
 define Package/freeradius3-mod-unix
   $(call Package/freeradius3/Default)
   DEPENDS:=freeradius3
@@ -492,7 +524,6 @@ CONFIGURE_ARGS+= \
 	--without-rlm_python \
 	--without-rlm_redis \
 	--without-rlm_rediswho \
-	--without-rlm_rest \
 	--without-rlm_ruby \
 	--without-rlm_securid \
 	--without-rlm_smsotp \
@@ -525,6 +556,16 @@ else
   CONFIGURE_ARGS+= --without-rlm_eap_peap
 endif
 
+ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-eap-pwd),)
+  CONFIGURE_ARGS+= \
+		--with-rlm_eap_pwd \
+		--with-rlm_eap_pwd-include-dir="$(STAGING_DIR)/usr/include" \
+		--with-rlm_eap_pwd-lib-dir="$(STAGING_DIR)/usr/lib"
+  CONFIGURE_LIBS+= -lcrypto -lssl
+else
+  CONFIGURE_ARGS+= --without-rlm_eap_pwd
+endif
+
 ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-eap-tls),)
   CONFIGURE_ARGS+= \
 		--with-rlm_eap_tls \
@@ -545,14 +586,33 @@ else
   CONFIGURE_ARGS+= --without-rlm_eap_ttls
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-eap-pwd),)
-  CONFIGURE_ARGS+= \
-		--with-rlm_eap_pwd \
-		--with-rlm_eap_pwd-include-dir="$(STAGING_DIR)/usr/include" \
-		--with-rlm_eap_pwd-lib-dir="$(STAGING_DIR)/usr/lib"
-  CONFIGURE_LIBS+= -lcrypto -lssl
+ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-ldap),)
+  CONFIGURE_ARGS+= --with-rlm_ldap \
+		--with-rlm_ldap-include-dir="$(STAGING_DIR)/usr/include" \
+		--with-rlm_ldap-lib-dir="$(STAGING_DIR)/usr/lib"
 else
-  CONFIGURE_ARGS+= --without-rlm_eap_pwd
+  CONFIGURE_ARGS+= --without-rlm_ldap
+endif
+
+ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-python3),)
+  CFLAGS+= -fPIC
+  CONFIGURE_ARGS+= \
+		--with-modules="rlm_python3" \
+		--with-rlm-python3-config-bin="$(STAGING_DIR)/host/bin/python$(PYTHON3_VERSION)-config"
+else
+  CONFIGURE_ARGS+= --without-rlm_python3
+endif
+
+ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-radutmp),)
+  CONFIGURE_ARGS+= --with-rlm_radutmp
+else
+  CONFIGURE_ARGS+= --without-rlm_radutmp
+endif
+
+ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-rest),)
+  CONFIGURE_ARGS+= --with-rlm_rest
+else
+  CONFIGURE_ARGS+= --without-rlm_rest
 endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-sql),)
@@ -593,24 +653,10 @@ else
   CONFIGURE_ARGS+= --without-rlm_sqlippool
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-radutmp),)
-  CONFIGURE_ARGS+= --with-rlm_radutmp
-else
-  CONFIGURE_ARGS+= --without-rlm_radutmp
-endif
-
 ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-unix),)
   CONFIGURE_ARGS+= --with-rlm_unix
 else
   CONFIGURE_ARGS+= --without-rlm_unix
-endif
-
-ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-ldap),)
-  CONFIGURE_ARGS+= --with-rlm_ldap \
-		--with-rlm_ldap-include-dir="$(STAGING_DIR)/usr/include" \
-		--with-rlm_ldap-lib-dir="$(STAGING_DIR)/usr/lib"
-else
-  CONFIGURE_ARGS+= --without-rlm_ldap
 endif
 
 ifeq ($(CONFIG_USE_GLIBC),y)
@@ -680,6 +726,10 @@ define Package/freeradius3/install
 	$(INSTALL_BIN) ./files/radiusd.init $(1)/etc/init.d/radiusd
 endef
 
+define Package/freeradius3-default/install
+	true
+endef
+
 define Package/freeradius3-democerts/install
 	$(INSTALL_DIR) $(1)/etc/freeradius3/certs
 	$(CP) \
@@ -691,7 +741,7 @@ endef
 
 define Package/freeradius3-utils/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	for f in radclient radeapclient radwho; do \
+	for f in radclient radeapclient radtest radwho; do \
 		$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$$$${f} $(1)/usr/bin/ ; \
 	done
 endef
@@ -722,15 +772,15 @@ $(eval $(call BuildPlugin,freeradius3-mod-attr-filter,rlm_attr_filter,))
 $(eval $(call BuildPlugin,freeradius3-mod-chap,rlm_chap,))
 $(eval $(call BuildPlugin,freeradius3-mod-detail,rlm_detail,))
 $(eval $(call BuildPlugin,freeradius3-mod-digest,rlm_digest,))
+$(eval $(call BuildPlugin,freeradius3-mod-eap,rlm_eap,))
 $(eval $(call BuildPlugin,freeradius3-mod-eap-gtc,rlm_eap_gtc,))
 $(eval $(call BuildPlugin,freeradius3-mod-eap-leap,rlm_eap_leap,))
 $(eval $(call BuildPlugin,freeradius3-mod-eap-md5,rlm_eap_md5,))
 $(eval $(call BuildPlugin,freeradius3-mod-eap-mschapv2,rlm_eap_mschapv2,))
 $(eval $(call BuildPlugin,freeradius3-mod-eap-peap,rlm_eap_peap,))
-$(eval $(call BuildPlugin,freeradius3-mod-eap,rlm_eap,))
+$(eval $(call BuildPlugin,freeradius3-mod-eap-pwd,rlm_eap_pwd,))
 $(eval $(call BuildPlugin,freeradius3-mod-eap-tls,rlm_eap_tls,))
 $(eval $(call BuildPlugin,freeradius3-mod-eap-ttls,rlm_eap_ttls,))
-$(eval $(call BuildPlugin,freeradius3-mod-eap-pwd,rlm_eap_pwd,))
 $(eval $(call BuildPlugin,freeradius3-mod-exec,rlm_exec,))
 $(eval $(call BuildPlugin,freeradius3-mod-expiration,rlm_expiration,))
 $(eval $(call BuildPlugin,freeradius3-mod-expr,rlm_expr,))
@@ -741,8 +791,10 @@ $(eval $(call BuildPlugin,freeradius3-mod-mschap,rlm_mschap,))
 $(eval $(call BuildPlugin,freeradius3-mod-pap,rlm_pap,))
 $(eval $(call BuildPlugin,freeradius3-mod-passwd,rlm_passwd,))
 $(eval $(call BuildPlugin,freeradius3-mod-preprocess,rlm_preprocess,))
+$(eval $(call BuildPlugin,freeradius3-mod-python3,rlm_python3,))
 $(eval $(call BuildPlugin,freeradius3-mod-radutmp,rlm_radutmp,))
 $(eval $(call BuildPlugin,freeradius3-mod-realm,rlm_realm,))
+$(eval $(call BuildPlugin,freeradius3-mod-rest,rlm_rest,))
 $(eval $(call BuildPlugin,freeradius3-mod-sql,rlm_sql,))
 $(eval $(call BuildPlugin,freeradius3-mod-sql-mysql,rlm_sql_mysql,))
 $(eval $(call BuildPlugin,freeradius3-mod-sql-null,rlm_sql_null,))

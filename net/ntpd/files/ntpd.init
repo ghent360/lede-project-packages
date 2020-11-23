@@ -40,6 +40,8 @@ start_ntpd_instance() {
 	# since some of them might be dynamic interfaces (like IPsec
 	# tunnels) which aren't known by ubus.
 
+	mkdir -p "$(dirname "$config_file")"
+
 	trunc
 	emit "driftfile /var/lib/ntp/ntp.drift\n"
 
@@ -72,6 +74,20 @@ start_ntpd_instance() {
 	do
 		emit "server $i iburst"
 	done
+
+	if [ -d "/etc/ntpd.d" ]; then
+		local entry
+		for entry in "/etc/ntpd.d"/*.conf; do
+			emit "includefile ${entry}\n"
+		done
+	fi
+
+	if [ -d "/tmp/ntpd.d" ]; then
+		local entry
+		for entry in "/tmp/ntpd.d"/*.conf; do
+			emit "includefile ${entry}\n"
+		done
+	fi
 
 	mkdir -p /var/lib/ntp
 	chown -R ntp:ntp /var/lib/ntp

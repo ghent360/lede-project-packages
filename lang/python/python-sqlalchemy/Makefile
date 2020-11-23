@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 CZ.NIC, z. s. p. o. (https://www.nic.cz/)
+# Copyright (C) 2019-2020 CZ.NIC, z. s. p. o. (https://www.nic.cz/)
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-sqlalchemy
-PKG_VERSION:=1.3.7
+PKG_VERSION:=1.3.18
 PKG_RELEASE:=1
 
 PYPI_NAME:=SQLAlchemy
-PKG_HASH:=0459bf0ea6478f3e904de074d65769a11d74cdc34438ab3159250c96d089aef0
+PKG_HASH:=da2fb75f64792c1fc64c82313a00c728a7c301efe6a60b7a9fe35b16b4368ce7
 
 PKG_MAINTAINER:=Josef Schlehofer <josef.schlehofer@nic.cz>
 PKG_LICENSE:=MIT
@@ -34,7 +34,6 @@ define Package/python3-sqlalchemy
 	+python3-urllib \
 	+python3-decimal \
 	+python3-logging
-  VARIANT:=python3
 endef
 
 define Package/python3-sqlalchemy/description

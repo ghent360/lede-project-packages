@@ -1,25 +1,25 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libnetwork
-PKG_RELEASE:=3
+PKG_RELEASE:=2
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
-GO_PKG:=github.com/docker/libnetwork
-GO_PKG_BUILD_PKG:= \
-  $(GO_PKG)/cmd/proxy \
-  $(GO_PKG)/cmd/dnet
-
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://$(GO_PKG)
-PKG_SOURCE_VERSION:=3eb39382bfa6a3c42f83674ab080ae13b0e34e5d
-PKG_SOURCE_DATE:=2019-10-22
-PKG_MIRROR_HASH:=0c2e3c83559b9ac27d2ef953911400957c8634847038c9da83a1fd8769a37a8d
+PKG_SOURCE_VERSION:=026aabaa659832804b01754aaadd2c0f420c68b6
+PKG_SOURCE_DATE:=2020-06-17
+PKG_MIRROR_HASH:=4ec8d3a7a99478dae9aef9f8337c14b91750164351963f9a6ed2288588d080e3
 
 PKG_MAINTAINER:=Gerard Ryan <G.M0N3Y.2503@gmail.com>
 
 PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
+
+GO_PKG:=github.com/docker/libnetwork
+GO_PKG_BUILD_PKG:= \
+  $(GO_PKG)/cmd/proxy \
+  $(GO_PKG)/cmd/dnet
 
 include $(INCLUDE_DIR)/package.mk
 include ../../lang/golang/golang-package.mk

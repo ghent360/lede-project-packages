@@ -8,12 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sslh
-PKG_VERSION:=v1.19c
-PKG_RELEASE:=2
+PKG_VERSION:=v1.21c
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://rutschle.net/tech/sslh/
-PKG_HASH:=bb11dfa88b27ae1ec825a1b8156000c3f17f7e8f042311f19b7a249193c47bf3
+PKG_HASH:=3bfe783726f82c1f5a4be630ddc494ebb08dbb69980662cd7ffdeb7bc9e1e706
+
+PKG_MAINTAINER:=Jonathan McCrohan <jmccrohan@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
 
@@ -24,9 +26,8 @@ define Package/sslh
   CATEGORY:=Network
   SUBMENU:=Routing and Redirection
   TITLE:=SSL/SSH multiplexer
-  DEPENDS:=+libconfig +USE_UCLIBC:libpcre +USE_MUSL:libpcre
+  DEPENDS:=+libconfig +libcap +USE_UCLIBC:libpcre +USE_MUSL:libpcre
   URL:=https://rutschle.net/tech/sslh/README.html
-  PKG_MAINTAINER:=Jonathan McCrohan <jmccrohan@gmail.com>
 endef
 
 define Package/sslh/conffiles
@@ -35,6 +36,7 @@ define Package/sslh/conffiles
 endef
 
 MAKE_FLAGS += \
+  USELIBCAP=1 \
   $(if $(CONFIG_USE_GLIBC),USELIBPCRE=,USELIBPCRE=1)
 
 define Package/sslh/install

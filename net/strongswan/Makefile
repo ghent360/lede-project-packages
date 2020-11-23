@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=strongswan
-PKG_VERSION:=5.8.1
+PKG_VERSION:=5.9.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://download.strongswan.org/ https://download2.strongswan.org/
-PKG_HASH:=d9af70acea5c054952ad1584916c1bf231b064eb6c8a9791dcb6ae90a769990c
+PKG_HASH:=72b47a385da5d1532b816d9fe04c50d074c29ed42ea3f0878fbd66335917bb66
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_MAINTAINER:=Stijn Tintel <stijn@linux-ipv6.be>
 PKG_CPE_ID:=cpe:/a:strongswan:strongswan
@@ -447,17 +447,12 @@ CONFIGURE_ARGS+= \
 EXTRA_LDFLAGS+= -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
 
 define Package/strongswan/conffiles
-/etc/ipsec.d/
-/etc/ipsec.conf
-/etc/ipsec.secrets
-/etc/ipsec.user
 /etc/strongswan.conf
 /etc/strongswan.d/
 endef
 
 define Package/strongswan/install
 	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/ipsec.conf $(1)/etc/
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/strongswan.conf $(1)/etc/
 	$(INSTALL_DIR) $(1)/usr/lib/ipsec
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libstrongswan.so.* $(1)/usr/lib/ipsec/
@@ -497,8 +492,16 @@ define Package/strongswan-charon-cmd/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/charon-cmd $(1)/usr/sbin/
 endef
 
+define Package/strongswan-ipsec/conffiles
+/etc/ipsec.d/
+/etc/ipsec.conf
+/etc/ipsec.secrets
+/etc/ipsec.user
+endef
+
 define Package/strongswan-ipsec/install
-	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/etc/ $(1)/usr/sbin
+	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/ipsec.conf $(1)/etc/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/ipsec $(1)/usr/sbin/
 endef
 
@@ -514,6 +517,10 @@ define Package/strongswan-scepclient/install
 	$(CP) $(PKG_INSTALL_DIR)/etc/strongswan.d/scepclient.conf $(1)/etc/strongswan.d/
 	$(INSTALL_DIR) $(1)/usr/lib/ipsec
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/ipsec/scepclient $(1)/usr/lib/ipsec/
+endef
+
+define Package/strongswan-swanctl/conffiles
+/etc/swanctl/
 endef
 
 define Package/strongswan-swanctl/install

@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=django-statici18n
-PKG_VERSION:=1.8.2
-PKG_RELEASE:=5
+PKG_VERSION:=1.9.0
+PKG_RELEASE:=2
 
 PYPI_NAME:=$(PKG_NAME)
-PKG_HASH:=ba9eeb3c4517027922645999359f8335fbb9fea04c457123cfbd6b4a36cbeda4
+PKG_HASH:=913dd056c1abcbe129b1db806cb4cfb821c4077d7e857d6eb29043ea64f4d1d0
 
 PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 PKG_LICENSE:=BSD-3-Clause
@@ -20,49 +20,25 @@ PKG_LICENSE_FILES:=LICENSE
 
 include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
-include ../python-package.mk
 include ../python3-package.mk
 
-define Package/$(PKG_NAME)/Default
+define Package/python3-django-statici18n
   SUBMENU:=Python
   SECTION:=lang
   CATEGORY:=Languages
   TITLE:=Helper for generating JavaScript catalog to static files
-  URL:=https://$(PKG_NAME).readthedocs.io
-endef
-
-define Package/python-$(PKG_NAME)
-$(call Package/$(PKG_NAME)/Default)
+  URL:=https://django-statici18n.readthedocs.io
   DEPENDS:= \
-	+PACKAGE_python-$(PKG_NAME):python \
-	python-django1
-  VARIANT:=python
-  MDEPENDS:=python-django1
+	+python3 \
+	+python3-django1 \
+	+python3-django-appconf \
+	+python3-six
 endef
 
-define Package/python-$(PKG_NAME)/description
+define Package/python3-django-statici18n/description
   A Django app that provides helper for generating JavaScript catalog to static files.
 endef
 
-define Package/python3-$(PKG_NAME)
-$(call Package/$(PKG_NAME)/Default)
-  DEPENDS:= \
-	+PACKAGE_python3-$(PKG_NAME):python3 \
-	python3-django
-  VARIANT:=python3
-  MDEPENDS:=python3-django
-endef
-
-define Package/python3-$(PKG_NAME)/description
-$(call define Package/python-$(PKG_NAME)/description)
-.
-(Variant for Python3)
-endef
-
-$(eval $(call PyPackage,python-$(PKG_NAME)))
-$(eval $(call BuildPackage,python-$(PKG_NAME)))
-$(eval $(call BuildPackage,python-$(PKG_NAME)-src))
-
-$(eval $(call Py3Package,python3-$(PKG_NAME)))
-$(eval $(call BuildPackage,python3-$(PKG_NAME)))
-$(eval $(call BuildPackage,python3-$(PKG_NAME)-src))
+$(eval $(call Py3Package,python3-django-statici18n))
+$(eval $(call BuildPackage,python3-django-statici18n))
+$(eval $(call BuildPackage,python3-django-statici18n-src))

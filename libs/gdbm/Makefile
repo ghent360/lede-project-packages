@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gdbm
 PKG_VERSION:=1.18.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@GNU/gdbm
@@ -21,7 +21,6 @@ PKG_LICENSE_FILES:=COPYING
 
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=0
-PKG_BUILD_DEPENDS:=gettext-full/host
 
 include $(INCLUDE_DIR)/package.mk
 

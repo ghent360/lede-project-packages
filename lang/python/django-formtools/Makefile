@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=django-formtools
 PKG_VERSION:=2.1
-PKG_RELEASE:=6
+PKG_RELEASE:=8
 
 PYPI_NAME:=$(PKG_NAME)
 PKG_HASH:=7703793f1675aa6e871f9fed147e8563816d7a5b9affdc5e3459899596217f7c
@@ -18,50 +18,24 @@ PKG_LICENSE_FILES:=LICENSE
 
 include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
-include ../python-package.mk
 include ../python3-package.mk
 
-define Package/$(PKG_NAME)/Default
+define Package/python3-django-formtools
   SUBMENU:=Python
   SECTION:=lang
   CATEGORY:=Languages
   TITLE:=High-level abstractions for Django forms
-  URL:=https://$(PKG_NAME).readthedocs.io
-endef
-
-define Package/python-$(PKG_NAME)
-$(call Package/$(PKG_NAME)/Default)
+  URL:=https://django-formtools.readthedocs.io
   DEPENDS:= \
-	+PACKAGE_python-$(PKG_NAME):python \
-	python-django1
-  VARIANT:=python
-  MDEPENDS:=python-django1
+	+python3 \
+	+python3-django1
 endef
 
-define Package/python-$(PKG_NAME)/description
+define Package/python3-django-formtools/description
   Django "formtools" is a set of high-level abstractions for Django forms.
   Currently for form previews and multi-step forms.
 endef
 
-define Package/python3-$(PKG_NAME)
-$(call Package/$(PKG_NAME)/Default)
-  DEPENDS:= \
-	+PACKAGE_python3-$(PKG_NAME):python3 \
-	python3-django
-  VARIANT:=python3
-  MDEPENDS:=python3-django
-endef
-
-define Package/python3-$(PKG_NAME)/description
-$(call define Package/python-$(PKG_NAME)/description)
-.
-(Variant for Python3)
-endef
-
-$(eval $(call PyPackage,python-$(PKG_NAME)))
-$(eval $(call BuildPackage,python-$(PKG_NAME)))
-$(eval $(call BuildPackage,python-$(PKG_NAME)-src))
-
-$(eval $(call Py3Package,python3-$(PKG_NAME)))
-$(eval $(call BuildPackage,python3-$(PKG_NAME)))
-$(eval $(call BuildPackage,python3-$(PKG_NAME)-src))
+$(eval $(call Py3Package,python3-django-formtools))
+$(eval $(call BuildPackage,python3-django-formtools))
+$(eval $(call BuildPackage,python3-django-formtools-src))

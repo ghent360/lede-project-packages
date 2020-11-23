@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 CZ.NIC z.s.p.o. (http://www.nic.cz/)
+# Copyright (C) 2019-2020 CZ.NIC z.s.p.o. (http://www.nic.cz/)
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,11 +9,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-pyparsing
-PKG_VERSION:=2.4.2
-PKG_RELEASE:=1
+PKG_VERSION:=2.4.7
+PKG_RELEASE:=2
 
 PYPI_NAME:=pyparsing
-PKG_HASH:=6f98a7b9397e206d78cc01df10131398f1c8b8510a2f4d97d9abd82e1aacdd80
+PKG_HASH:=c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1
 
 PKG_MAINTAINER:=Jan Pavlinec <jan.pavlinec@nic.cz>
 PKG_LICENSE:=MIT
@@ -30,7 +30,6 @@ define Package/python3-pyparsing
   TITLE:=Library for constructing grammar directly in python
   URL:=https://github.com/pyparsing/pyparsing/
   DEPENDS:=+python3-light
-  VARIANT:=python3
 endef
 
 define Package/python3-pyparsing/description

@@ -6,12 +6,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libmpdclient
-PKG_VERSION:=2.16
-PKG_RELEASE:=2
+PKG_VERSION:=2.19
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_HASH:=fa6bdab67c0e0490302b38f00c27b4959735c3ec8aef7a88327adb1407654464
-PKG_SOURCE_URL:=https://www.musicpd.org/download/libmpdclient/2/
+PKG_SOURCE_URL:=https://www.musicpd.org/download/libmpdclient/2
+PKG_HASH:=158aad4c2278ab08e76a3f2b0166c99b39fae00ee17231bd225c5a36e977a189
 
 PKG_MAINTAINER:=Ted Hess <thess@kitschensync.net>
 PKG_LICENSE:=BSD-3-Clause
@@ -27,7 +27,7 @@ define Package/libmpdclient
     TITLE:=libmpdclient
     SECTION:=libs
     CATEGORY:=Libraries
-    URL:=http://mpd.wikia.com/wiki/ClientLib:libmpdclient
+    URL:=https://musicpd.org/libs/libmpdclient/
 endef
 
 define Package/libmpdclient/description

@@ -1,17 +1,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ariang
-PKG_VERSION:=1.1.1
+PKG_VERSION:=1.1.7
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=https://codeload.github.com/mayswind/AriaNg-DailyBuild/tar.gz/$(PKG_VERSION)?
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_HASH:=48f3f737a6a79ab140f6bc75b0b6fd377ccbb75c7b7260b38ad4e64dee97d9e8
+PKG_SOURCE_URL:=https://codeload.github.com/mayswind/AriaNg-DailyBuild/tar.gz/$(PKG_VERSION)?
+PKG_HASH:=e6f9c1fe6f57c3d9c2f29ec154398ba3e0b8565ccb1c3fc1c16c511e543a7ba5
 PKG_BUILD_DIR:=$(BUILD_DIR)/AriaNg-DailyBuild-$(PKG_VERSION)
 
+PKG_MAINTAINER:=Ansuel Smith <ansuelsmth@gmail.com>
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=Ansuel Smith <ansuelsmth@gmail.com>
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -61,8 +61,8 @@ endef
 
 define Package/ariang-nginx/install
 	$(Package/ariang/install)
-	$(INSTALL_DIR) $(1)/etc/nginx
-	$(INSTALL_BIN) ./files/ariang.conf $(1)/etc/nginx/ariang.conf
+	$(INSTALL_DIR) $(1)/etc/nginx/conf.d/
+	$(INSTALL_BIN) ./files/ariang.locations $(1)/etc/nginx/conf.d/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/80_ariang-nginx-support $(1)/etc/uci-defaults/80_ariang-nginx-support
 endef

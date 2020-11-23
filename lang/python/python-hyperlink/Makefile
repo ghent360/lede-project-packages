@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-hyperlink
-PKG_VERSION:=19.0.0
+PKG_VERSION:=20.0.1
 PKG_RELEASE:=1
 
 PYPI_NAME:=hyperlink
-PKG_HASH:=4288e34705da077fada1111a24a0aa08bb1e76699c9ce49876af722441845654
+PKG_HASH:=47fcc7cd339c6cb2444463ec3277bdcfe142c8b1daf2160bdd52248deec815af
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
@@ -20,48 +20,30 @@ PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>
 
 include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
-include ../python-package.mk
 include ../python3-package.mk
 
-define Package/python-hyperlink/Default
+define Package/python3-hyperlink
   SECTION:=lang
   CATEGORY:=Languages
   SUBMENU:=Python
   TITLE:=Pure-Python immutable URLs
   URL:=https://github.com/python-hyper/hyperlink
-endef
-
-define Package/python-hyperlink
-$(call Package/python-hyperlink/Default)
   DEPENDS:= \
-      +PACKAGE_python-hyperlink:python-light \
-      +PACKAGE_python-hyperlink:python-idna
-  VARIANT:=python
+      +python3-light \
+      +python3-codecs \
+      +python3-idna
 endef
 
-define Package/python3-hyperlink
-$(call Package/python-hyperlink/Default)
-  DEPENDS:= \
-      +PACKAGE_python3-hyperlink:python3-light \
-      +PACKAGE_python3-hyperlink:python3-idna
-  VARIANT:=python3
-endef
-
-define Package/python-hyperlink/description
+define Package/python3-hyperlink/description
 Hyperlink provides a pure-Python implementation of immutable URLs. Based
 on RFC 3986 and 3987, the Hyperlink URL makes working with both URIs and
 IRIs easy.
 endef
 
-define Package/python3-hyperlink/description
-$(call Package/python-hyperlink/description)
-.
-(Variant for Python3)
+define Py3Package/python3-hyperlink/filespec
++|$(PYTHON3_PKG_DIR)
+-|$(PYTHON3_PKG_DIR)/hyperlink/hypothesis.py
 endef
-
-$(eval $(call PyPackage,python-hyperlink))
-$(eval $(call BuildPackage,python-hyperlink))
-$(eval $(call BuildPackage,python-hyperlink-src))
 
 $(eval $(call Py3Package,python3-hyperlink))
 $(eval $(call BuildPackage,python3-hyperlink))

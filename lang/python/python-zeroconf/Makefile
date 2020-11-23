@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 CZ.NIC, z. s. p. o. (https://www.nic.cz/)
+# Copyright (C) 2019-2020 CZ.NIC, z. s. p. o. (https://www.nic.cz/)
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-zeroconf
-PKG_VERSION:=0.23.0
+PKG_VERSION:=0.28.5
 PKG_RELEASE:=1
 
 PYPI_NAME:=zeroconf
-PKG_HASH:=e0c333b967c48f8b2e5cc94a1d4d28893023fb06dfd797ee384a94cdd1d0eef5
+PKG_HASH:=c08dbb90c116626cb6c5f19ebd14cd4846cffe7151f338c19215e6938d334980
 
 PKG_MAINTAINER:=Josef Schlehofer <pepe.schlehofer@gmail.com>
 PKG_LICENSE:=Apache-2.0
@@ -32,7 +32,6 @@ define Package/python3-zeroconf
 	  +python3-light \
 	  +python3-logging \
 	  +python3-ifaddr
-  VARIANT:=python3
 endef
 
 define Package/python3-zeroconf/description

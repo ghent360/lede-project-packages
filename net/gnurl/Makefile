@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gnurl
-PKG_VERSION:=7.65.1
+PKG_VERSION:=7.72.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=https://ftp.gnu.org/gnu/gnunet
+PKG_SOURCE_URL:=@GNU/gnunet
 
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_HASH:=37bb87993f9219f4c76195031f1b0311afde157a1b852d54f570e3195ad7af01
+PKG_HASH:=b1e72be03fcf9b3fdaf01ae0702c686e9de10f67ef538918447c9e81555694f8
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=COPYING
@@ -28,7 +28,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/gnurl/Default
   SECTION:=net
   CATEGORY:=Network
-  URL:=https://gnunet.org/gnurl
+  URL:=https://gnunet.org/en/gnurl.html
   MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 endef
 
@@ -71,6 +71,7 @@ CONFIGURE_ARGS += \
 	--without-ssl \
 	--without-winssl \
 	--without-darwinssl \
+	--without-zstd \
 	--disable-ares \
 	--disable-sspi \
 	--disable-crypto-auth \

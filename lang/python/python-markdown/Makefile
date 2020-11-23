@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 CZ.NIC, z. s. p. o. (https://www.nic.cz/)
+# Copyright (C) 2019-2O20 CZ.NIC, z. s. p. o. (https://www.nic.cz/)
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-markdown
-PKG_VERSION:=3.1.1
+PKG_VERSION:=3.3.3
 PKG_RELEASE:=1
 
 PYPI_NAME:=Markdown
-PKG_HASH:=2e50876bcdd74517e7b71f3e7a76102050edec255b3983403f1a63e7c8a41e7a
+PKG_HASH:=5d9f2b5ca24bc4c7a390d22323ca4bad200368612b5aaa7796babf971d2b2f18
 
 PKG_MAINTAINER:=Josef Schlehofer <josef.schlehofer@nic.cz>
 PKG_LICENSE:=BSD-3-Clause
@@ -30,9 +30,7 @@ define Package/python3-markdown
   URL:=https://python-markdown.github.io/
   DEPENDS:= \
 	+python3-light \
-	+python3-setuptools \
 	+python3-logging
-  VARIANT:=python3
 endef
 
 define Package/python3-markdown/description

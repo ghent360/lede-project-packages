@@ -33,6 +33,7 @@ $(call Package/cups/Default)
   CATEGORY:=Libraries
   DEPENDS:=+zlib +libpthread +libpng +libjpeg +libusb-1.0
   TITLE:=Common UNIX Printing System - Core library
+  BUILDONLY:=1
 endef
 
 define Package/libcups/description
@@ -83,8 +84,11 @@ define Build/Compile
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(2)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/cups-config $(2)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/cups-config $(1)/usr/bin/
+	$(INSTALL_DIR) $(2)/bin
+	$(LN) $(STAGING_DIR)/usr/bin/cups-config $(2)/bin
+
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/cups $(1)/usr/include/
 	$(INSTALL_DIR) $(1)/usr/lib

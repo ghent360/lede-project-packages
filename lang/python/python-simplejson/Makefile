@@ -8,64 +8,36 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-simplejson
-PKG_VERSION:=3.16.0
-PKG_RELEASE:=3
+PKG_VERSION:=3.17.2
+PKG_RELEASE:=1
 PKG_LICENSE:=MIT
 PKG_CPE_ID:=cpe:/a:simplejson_project:simplejson
 
 PYPI_NAME:=simplejson
-PKG_HASH:=b1f329139ba647a9548aa05fb95d046b4a677643070dc2afc05fa2e975d09ca5
+PKG_HASH:=75ecc79f26d99222a084fbdd1ce5aad3ac3a8bd535cd9059528452da38b68841
 
 include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
-include ../python-package.mk
 include ../python3-package.mk
 
-define Package/python-simplejson/Default
+define Package/python3-simplejson
   SUBMENU:=Python
   SECTION:=lang
   CATEGORY:=Languages
   MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
+  TITLE:=Simple, fast, extensible JSON encoder/decoder
   URL:=https://simplejson.readthedocs.org/
-endef
-
-define Package/python-simplejson
-$(call Package/python-simplejson/Default)
-  TITLE:=Simple, fast, extensible JSON encoder/decoder for Python 2
-  DEPENDS:=+PACKAGE_python-simplejson:python-light +PACKAGE_python-simplejson:python-decimal
-  VARIANT:=python
-endef
-
-define Package/python3-simplejson
-$(call Package/python-simplejson/Default)
-  TITLE:=Simple, fast, extensible JSON encoder/decoder for Python3
-  DEPENDS:=+PACKAGE_python3-simplejson:python3-light +PACKAGE_python3-simplejson:python3-decimal
-  VARIANT:=python3
-endef
-
-define Package/python-simplejson/description
-  Simple, fast, extensible JSON encoder/decoder for Python
+  DEPENDS:=+python3-light +python3-decimal
 endef
 
 define Package/python3-simplejson/description
-$(call Package/python-simplejson/description)
-.
-(Variant for Python3)
-endef
-
-define PyPackage/python-simplejson/filespec
-+|$(PYTHON_PKG_DIR)
--|$(PYTHON_PKG_DIR)/simplejson/tests
+  Simple, fast, extensible JSON encoder/decoder for Python
 endef
 
 define Py3Package/python3-simplejson/filespec
 +|$(PYTHON3_PKG_DIR)
 -|$(PYTHON3_PKG_DIR)/simplejson/tests
 endef
-
-$(eval $(call PyPackage,python-simplejson))
-$(eval $(call BuildPackage,python-simplejson))
-$(eval $(call BuildPackage,python-simplejson-src))
 
 $(eval $(call Py3Package,python3-simplejson))
 $(eval $(call BuildPackage,python3-simplejson))

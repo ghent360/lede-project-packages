@@ -5,11 +5,10 @@
 
 START=15
 
-ovs_script_dir=/usr/share/openvswitch/scripts
-ovs_ctl="$ovs_script_dir/ovs-ctl"; [ -x "$ovs_ctl" ] || ovs_ctl=:
-ovn_ctl="$ovs_script_dir/ovn-ctl"; [ -x "$ovn_ctl" ] || ovn_ctl=:
+ovs_ctl="/usr/share/openvswitch/scripts/ovs-ctl"; [ -x "$ovs_ctl" ] || ovs_ctl=:
+ovn_ctl="/usr/share/ovn/scripts/ovn-ctl"; [ -x "$ovn_ctl" ] || ovn_ctl=:
 
-EXTRA_COMMANDS=status
+extra_command "status" "Get status information"
 
 start() {
 	ovs_action start "$@"
@@ -37,6 +36,8 @@ ovs_action() {
 	for cfgtype in ovs ovn_northd ovn_controller; do
 		config_foreach "ovs_xx" "$cfgtype" "$action" "$cfgtype"
 	done
+
+	config_foreach ovs_bridge_init "ovs_bridge"
 }
 
 ovs_xx() {
@@ -52,7 +53,7 @@ ovs_xx() {
 		status|stop) ;;
 		*)
 			config_get_bool disabled "$cfg" disabled 0
-			[ "$disabled" -le 0 ] || return
+			[ "$disabled" == "0" ] || return
 			;;
 	esac
 
@@ -65,4 +66,22 @@ ovs_xx() {
 			"$ovn_ctl" "${action}_${cfgtype#ovn_}"
 			;;
 	esac
+}
+
+ovs_bridge_init() {
+	local cfg="$1"
+
+	local disabled
+	local name
+	local controller
+
+	config_get_bool disabled "$cfg" disabled 0
+	[ "$disabled" == "0" ] || return
+
+	config_get name "$cfg" name $cfg
+	ovs-vsctl --may-exist add-br "$name"
+
+	config_get controller "$cfg" controller
+	[ -n "$controller" ] && \
+		ovs-vsctl set-controller "$name" "$controller"
 }
